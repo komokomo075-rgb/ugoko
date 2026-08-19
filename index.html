@@ -17,10 +17,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ★【最重要】SEOに一番効く先頭に「座りっぱなし対策」を配置！ -->
+  <!-- ★SEO最適化タイトル -->
   <title>座りっぱなし対策タイマー「うごこ。」 | デスクワークの健康管理ツール</title>
 
-  <!-- ★検索結果でクリック率を高める説明文（座りっぱなし対策を自然に盛り込み） -->
+  <!-- ★検索結果用の説明文 -->
   <meta name="description" content="デスクワークの座りっぱなし対策に！時間になると画面のすみに通知と音でお知らせする健康管理タイマー『うごこ。』。アプリ不要で今すぐ使えます。長時間の座りっぱなしを防ぎ、肩こり・腰痛・血行不良を予防。">
 
   <style>
@@ -57,7 +57,7 @@
       transition: opacity 0.3s ease;
     }
     .guide-overlay.active { opacity: 1; pointer-events: auto; }
-    .guide-icon { font-size: 32px; margin-bottom: 6px; }
+    .guide-icon { font-size: 32px; margin-bottom: 4px; }
     .guide-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
     .guide-desc { font-size: 12px; color: #E0E5E1; line-height: 1.6; margin-bottom: 18px; text-align: left; background: rgba(255,255,255,0.08); padding: 14px; border-radius: 12px; }
     .guide-btn { background: var(--accent-green); color: #FFF; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%; }
@@ -111,7 +111,9 @@
     .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 600; }
     
     .start-btn { width: 100%; background: var(--accent-green); color: #FFF; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
-    .test-btn { width: 100%; background: transparent; border: none; color: var(--text-sub); font-size: 11px; margin-top: 10px; cursor: pointer; text-decoration: underline; }
+    .test-area { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
+    .test-note { font-size: 11px; color: var(--text-sub); line-height: 1.4; margin-bottom: 4px; }
+    .test-btn { background: transparent; border: none; color: var(--accent-green); font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -126,7 +128,7 @@
   </div>
 
   <div class="container">
-   <!-- サイトを開いた瞬間にでる全般案内モーダル -->
+    <!-- サイトを開いた瞬間にでる全般案内モーダル -->
     <div id="guideOverlay" class="guide-overlay active">
       <div class="guide-icon">🔔</div>
       <div class="guide-title">はじめる前のご確認</div>
@@ -134,16 +136,14 @@
         健康のために<b>身体を動かそう！</b><br>
         時間になったら<b>画面と音</b>でお知らせして「座りっぱなし」を防ぎます！<br><br>
         このあと画面に出る通知を<b>「許可」</b>してスタートしてください。<br><br>
-        💡 <b>初めての方は、一番下の「⚡5秒テスト」でこのサイト以外の画面でも通知が出るかをご確認ください！</b><br>
-        <small style="color:#A0B0A5;">※出ない場合は、PC設定の「通知オフ」「集中モード」や、スリープ状態になっていないかご確認ください。</small><br><br>
-        📱 <b>スマホでご利用の方へ</b><br>
-        本ツールはPCデスクワーク向け（PC版）となっております。スマホの別アプリを開くと通知が届かない場合があるため、ブラウザを開いたままにしていただくか、PCでのご使用をおすすめします。
+        📱 <b>スマホでご利用の方へ：</b><br>
+        PC版のため、スマホの別アプリを開くと通知が届かない場合があります。ブラウザを開いたままにしていただくか、PCでのご使用をおすすめします。
       </div>
       <button class="guide-btn" onclick="allowNotification()">確認してはじめる</button>
     </div>
 
     <div class="brand-title">うごこ。</div>
-<div class="brand-concept">PCデスクワークの座りっぱなしを、ちょっと減らそう。</div>
+    <div class="brand-concept">PCデスクワークの座りっぱなしを、ちょっと減らそう。</div>
 
     <img id="charaImg" src="chara-focus.png" alt="座りっぱなし対策タイマー「うごこ。」のキャラクター" class="chara-img">
     <div id="statusBadge" class="status-badge">作業タイム（Focus）</div>
@@ -170,7 +170,11 @@
     </div>
 
     <button class="start-btn" id="startBtn" onclick="handleStartClick()">スタート</button>
-    <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
+    
+    <div class="test-area">
+      <div class="test-note">💡 初めての方は別画面でも通知が出るか確認できます</div>
+      <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
+    </div>
   </div>
 
   <script>
