@@ -56,7 +56,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* 画面内付箋ポップアップ（OKボタン付き） */
+    /* 画面内付箋ポップアップ（サイト内にいるとき用） */
     .sticky-toast {
       position: fixed;
       bottom: -150px;
@@ -263,12 +263,11 @@
       }
     }
 
-    // ★ OKボタンが押された時の処理
+    // ★ OKボタン（または通知クリック）で次のタイマーへ進む処理
     function handleOkClick() {
       closeToast();
       stopBlinkingTitle();
 
-      // モードを切り替えて、新しいカウントダウンを自動スタート
       if (mode === 'focus') {
         switchMode('move');
       } else {
@@ -298,14 +297,34 @@
       startBlinkingTitle("🔔 " + title);
       showStickyToast(title, body);
 
+      // 別タブ/別アプリ使用時でもそのままクリックできるよう設定
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          activeNotification = new Notification(title, { body: body, requireInteraction: true });
-          activeNotification.onclick = function() {
-            window.focus();
-            handleOkClick(); // OS通知クリックでOKと同じ動線にする
+          var options = {
+            body: body,
+            requireInteraction: true,
+            // OS通知上に「OK」ボタンを埋め込む（サポートブラウザのみ表示）
+            actions: [
+              { action: 'ok', title: 'OK（タイマー開始）' }
+            ]
           };
-        } catch(e) {}
+
+          activeNotification = new Notification(title, options);
+          
+          // 通知全体をクリック、または通知上の「OK」アクションを押した場合
+          activeNotification.onclick = function(e) {
+            handleOkClick(); // 画面を前面に出さず、裏で次のタイマーをスタート！
+          };
+
+        } catch(e) {
+          // fallback
+          try {
+            activeNotification = new Notification(title, { body: body, requireInteraction: true });
+            activeNotification.onclick = function() {
+              handleOkClick();
+            };
+          } catch(err) {}
+        }
       }
     }
 
@@ -404,18 +423,16 @@
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
-        // カウントダウン終了時の挙動
         isRunning = false;
         worker.postMessage('stop');
         document.getElementById('startBtn').innerText = 'スタート';
         timeLeft = 0;
         updateDisplay();
         
-        // 休憩へ移る通知 または 集中へ戻る通知を発行
         if (mode === 'focus') {
-          sendNotification("🚶‍♂️ そろそろ、うごこ！", focusMinutes + "分経ちました！OKを押して動くタイムを始めましょう。");
+          sendNotification("🚶‍♂️ そろそろ、うごこ！", focusMinutes + "分経ちました！通知の『OK』を押して動くタイムをはじめましょう。");
         } else {
-          sendNotification("☕ おつかれさまでした！", "休憩終了です！OKを押して集中タイムに戻りましょう。");
+          sendNotification("☕ おつかれさまでした！", "休憩終了です！通知の『OK』を押して集中タイムに戻りましょう。");
         }
       } else {
         timeLeft = Math.ceil(remainingMs / 1000);
