@@ -48,7 +48,7 @@
       position: fixed;
       bottom: -150px;
       right: 20px;
-      width: 320px;
+      width: 330px;
       background: #FFFFFF;
       border-left: 6px solid var(--accent-green);
       border-radius: 12px;
@@ -65,7 +65,22 @@
     .sticky-toast.show { bottom: 20px; }
     .toast-icon { font-size: 28px; }
     .toast-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
-    .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+    .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 4px; line-height: 1.4; }
+    
+    /* ★ クリックを促す絵文字だけ超巨大化！ */
+    .big-emoji-btn {
+      display: inline-block;
+      font-size: 26px;
+      vertical-align: middle;
+      margin: 0 2px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
 
     .chara-img { max-width: 110px; max-height: 110px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 12px auto; }
     .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 8px; }
@@ -88,7 +103,10 @@
     <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
     <div>
       <div class="toast-title" id="toastTitle">そろそろ、うごこ！</div>
-      <div class="toast-body" id="toastBody">ここをクリックしてカウントダウンを始めよう！</div>
+      <div class="toast-body" id="toastBody">
+        ここをクリック→<span class="big-emoji-btn" id="toastEmojiBtn">🚶‍♂️</span>でスタート！<br>
+        <small style="color:#E74C3C; font-size: 10px;">※右上「×（閉じる）」は押さないでね</small>
+      </div>
     </div>
   </div>
 
@@ -220,10 +238,10 @@
       } catch(e) {}
     }
 
-    function showStickyToast(title, body) {
+    function showStickyToast(title, bodyText, emoji) {
       document.getElementById('toastTitle').innerText = title;
-      document.getElementById('toastBody').innerText = body;
       document.getElementById('toastIcon').innerText = mode === 'focus' ? '🚶‍♂️' : '☕';
+      document.getElementById('toastEmojiBtn').innerText = emoji;
       document.getElementById('stickyToast').classList.add('show');
     }
 
@@ -263,18 +281,18 @@
       }
     }
 
-    function sendNotification(title, body) {
+    function sendNotification(title, bodyText, emoji) {
       playAudio();
       startBlinkingTitle("🔔 " + title);
-      showStickyToast(title, body);
+      showStickyToast(title, bodyText, emoji);
 
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          activeNotification = new Notification(title, { body: body, requireInteraction: true });
+          activeNotification = new Notification(title, { body: bodyText, requireInteraction: true });
           
           activeNotification.onclick = function() {
-            window.focus(); // サイトを前面に出す
-            handleToastClick(); // 次のタイマーを開始
+            window.focus();
+            handleToastClick();
           };
         } catch(e) {}
       }
@@ -372,7 +390,7 @@
       worker.postMessage('start');
     }
 
-    // ★ ここで「ここをクリック→☕」のような誘導テキストに変更しています
+    // ★ 「ここをクリック→絵文字」＋「※×(閉じる)は押さないでね」を追加！
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
@@ -385,12 +403,14 @@
         if (mode === 'focus') {
           sendNotification(
             "🚶‍♂️ そろそろ、うごこ！",
-            focusMinutes + "分経ちました！ここをクリック→🚶‍♂️で『動くタイム』を始めましょう。"
+            focusMinutes + "分経ちました！ここをクリック→🚶‍♂️で『動くタイム』を始めよう！\n※右上「×(閉じる)」は押さないでね",
+            "🚶‍♂️"
           );
         } else {
           sendNotification(
             "☕ おつかれさまでした！",
-            "休憩終了です！ここをクリック→☕で『集中タイム』に戻りましょう。"
+            "休憩終了です！ここをクリック→☕で『集中タイム』に戻ろう！\n※右上「×(閉じる)」は押さないでね",
+            "☕"
           );
         }
       } else {
