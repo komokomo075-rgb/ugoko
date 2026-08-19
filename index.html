@@ -112,7 +112,7 @@
     
     .start-btn { width: 100%; background: var(--accent-green); color: #FFF; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
     .test-area { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
-    .test-note { font-size: 11px; color: var(--text-sub); line-height: 1.4; margin-bottom: 4px; }
+    .test-note { font-size: 11px; color: var(--text-sub); line-height: 1.4; }
     .test-btn { background: transparent; border: none; color: var(--accent-green); font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
@@ -173,8 +173,8 @@
     <button class="start-btn" id="startBtn" onclick="handleStartClick()">スタート</button>
     
     <div class="test-area">
-      <div class="test-note">💡 初めての方は別画面でも通知が出るか確認できます</div>
       <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
+      <div class="test-note" style="margin-top: 4px;">↑ 初めての方は別画面でも通知が出るかテスト確認できます</div>
     </div>
   </div>
 
