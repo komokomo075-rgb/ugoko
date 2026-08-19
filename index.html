@@ -1,20 +1,28 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <!-- Search Console所有権確認タグ -->
   <meta name="google-site-verification" content="LLX9dL5JQ01BfgqitVwYKJPprBNOxUUzs0bN3RoA5S8" />
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-T97B2TJZHF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-T97B2TJZHF');
-</script>
-  
+  <!-- Google Analytics (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-T97B2TJZHF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-T97B2TJZHF');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>うごこ。 | ugoko - 座りっぱなしを、ちょっと減らそう。</title>
+
+  <!-- ★検索用タイトル -->
+  <title>うごこ。 | 座りっぱなし対策ポモドーロタイマー（ブラウザで使える無料ツール）</title>
+
+  <!-- ★Google検索結果用 説明文（追加！） -->
+  <meta name="description" content="デスクワークの座りっぱなし対策に！時間になると画面のすみにポップアップと音でお知らせする無料タイマー『うごこ。』。アプリ不要で今すぐ使えます。">
+
   <style>
     :root {
       --bg-color: #F2F4F2;
@@ -119,17 +127,17 @@
 
   <div class="container">
     <!-- サイトを開いた瞬間にでる全般案内モーダル -->
-<div id="guideOverlay" class="guide-overlay active">
-  <div class="guide-icon">🔔</div>
-  <div class="guide-title">はじめる前のご確認</div>
-  <div class="guide-desc">
-    別画面を開いていても、時間になったら<b>付箋と音</b>でお知らせします！<br><br>
-    このあと画面に出るポップアップで<b>「許可」</b>を選んでスタートしてください。<br><br>
-    💡 <b>初めての方は、一番下の「⚡5秒テスト」でこのサイト以外の画面でも通知が出るかをご確認ください！</b><br><br>
-    <small style="color:#A0B0A5;">※出ない場合は、PC設定の「通知オフ」「集中モード」や、スリープ状態になっていないかご確認ください。</small>
-  </div>
-  <button class="guide-btn" onclick="allowNotification()">確認してはじめる</button>
-</div>
+    <div id="guideOverlay" class="guide-overlay active">
+      <div class="guide-icon">🔔</div>
+      <div class="guide-title">はじめる前のご確認</div>
+      <div class="guide-desc">
+        デスクワークの<b>座りっぱなし対策</b>に！別画面を開いていても、時間になったら<b>付箋と音</b>でお知らせします！<br><br>
+        このあと画面に出るポップアップで<b>「許可」</b>を選んでスタートしてください。<br><br>
+        💡 <b>初めての方は、一番下の「⚡5秒テスト」でこのサイト以外の画面でも通知が出るかをご確認ください！</b><br><br>
+        <small style="color:#A0B0A5;">※出ない場合は、PC設定の「通知オフ」「集中モード」や、スリープ状態になっていないかご確認ください。</small>
+      </div>
+      <button class="guide-btn" onclick="allowNotification()">確認してはじめる</button>
+    </div>
 
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
