@@ -37,24 +37,11 @@
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    .guide-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .guide-overlay.active { opacity: 1; pointer-events: auto; }
     .guide-icon { font-size: 36px; margin-bottom: 10px; }
     .guide-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
     .guide-desc { font-size: 12px; color: #E0E5E1; line-height: 1.6; margin-bottom: 18px; }
-    .guide-btn {
-      background: var(--accent-green);
-      color: #FFF;
-      border: none;
-      padding: 12px 22px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
+    .guide-btn { background: var(--accent-green); color: #FFF; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
     /* 画面内付箋ポップアップ（サイト内にいるとき用） */
     .sticky-toast {
@@ -68,29 +55,17 @@
       padding: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.15);
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      gap: 12px;
       transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 9999;
       text-align: left;
+      cursor: pointer;
     }
     .sticky-toast.show { bottom: 20px; }
-    .toast-content { display: flex; align-items: center; gap: 12px; }
     .toast-icon { font-size: 28px; }
     .toast-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
     .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-    .toast-ok-btn {
-      align-self: flex-end;
-      background: var(--accent-green);
-      color: #FFF;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 20px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
 
     .chara-img { max-width: 110px; max-height: 110px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 12px auto; }
     .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 8px; }
@@ -108,16 +83,13 @@
 </head>
 <body>
 
-  <!-- OKボタン付きの画面内付箋ポップアップ -->
-  <div id="stickyToast" class="sticky-toast">
-    <div class="toast-content">
-      <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
-      <div>
-        <div class="toast-title" id="toastTitle">そろそろ、うごこ！</div>
-        <div class="toast-body" id="toastBody">時間になりました。動くタイムをはじめましょう！</div>
-      </div>
+  <!-- 画面内付箋ポップアップ -->
+  <div id="stickyToast" class="sticky-toast" onclick="handleToastClick()">
+    <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
+    <div>
+      <div class="toast-title" id="toastTitle">そろそろ、うごこ！</div>
+      <div class="toast-body" id="toastBody">ここをクリックしてカウントダウンを始めよう！</div>
     </div>
-    <button class="toast-ok-btn" onclick="handleOkClick()">OK</button>
   </div>
 
   <div class="container">
@@ -263,8 +235,7 @@
       }
     }
 
-    // ★ OKボタン（または通知クリック）で次のタイマーへ進む処理
-    function handleOkClick() {
+    function handleToastClick() {
       closeToast();
       stopBlinkingTitle();
 
@@ -297,34 +268,15 @@
       startBlinkingTitle("🔔 " + title);
       showStickyToast(title, body);
 
-      // 別タブ/別アプリ使用時でもそのままクリックできるよう設定
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          var options = {
-            body: body,
-            requireInteraction: true,
-            // OS通知上に「OK」ボタンを埋め込む（サポートブラウザのみ表示）
-            actions: [
-              { action: 'ok', title: 'OK（タイマー開始）' }
-            ]
-          };
-
-          activeNotification = new Notification(title, options);
+          activeNotification = new Notification(title, { body: body, requireInteraction: true });
           
-          // 通知全体をクリック、または通知上の「OK」アクションを押した場合
-          activeNotification.onclick = function(e) {
-            handleOkClick(); // 画面を前面に出さず、裏で次のタイマーをスタート！
+          activeNotification.onclick = function() {
+            window.focus(); // サイトを前面に出す
+            handleToastClick(); // 次のタイマーを開始
           };
-
-        } catch(e) {
-          // fallback
-          try {
-            activeNotification = new Notification(title, { body: body, requireInteraction: true });
-            activeNotification.onclick = function() {
-              handleOkClick();
-            };
-          } catch(err) {}
-        }
+        } catch(e) {}
       }
     }
 
@@ -420,6 +372,7 @@
       worker.postMessage('start');
     }
 
+    // ★ ここで「ここをクリック→☕」のような誘導テキストに変更しています
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
@@ -430,9 +383,15 @@
         updateDisplay();
         
         if (mode === 'focus') {
-          sendNotification("🚶‍♂️ そろそろ、うごこ！", focusMinutes + "分経ちました！通知の『OK』を押して動くタイムをはじめましょう。");
+          sendNotification(
+            "🚶‍♂️ そろそろ、うごこ！",
+            focusMinutes + "分経ちました！ここをクリック→🚶‍♂️で『動くタイム』を始めましょう。"
+          );
         } else {
-          sendNotification("☕ おつかれさまでした！", "休憩終了です！通知の『OK』を押して集中タイムに戻りましょう。");
+          sendNotification(
+            "☕ おつかれさまでした！",
+            "休憩終了です！ここをクリック→☕で『集中タイム』に戻りましょう。"
+          );
         }
       } else {
         timeLeft = Math.ceil(remainingMs / 1000);
