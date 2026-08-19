@@ -115,7 +115,7 @@
       <div class="guide-desc">
         別画面を開いていても時間になったら付箋を出します。<br>
         このあとポップアップで<b>「許可」</b>を選んでください！<br><br>
-        <small style="color:#A0B0A5;">※出ない場合はURL横の🔔マークから許可できます</small>
+        <small style="color:#A0B0A5;">※出ない場合はURL横の🔒マーク、または<b>PC自体の設定（システム＞通知）</b>をご確認ください</small>
       </div>
       <button class="guide-btn" onclick="allowNotification()">通知を許可してスタート</button>
     </div>
@@ -396,7 +396,6 @@
       worker.postMessage('start');
     }
 
-    // ★ 文言・改行・絵文字表現の変更箇所
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
