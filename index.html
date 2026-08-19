@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>うごこ。 | ugoko</title>
+  <title>うごこ。 | ugoko - 座りっぱなしを、ちょっと減らそう。</title>
   <style>
     :root {
       --bg-color: #F2F4F2;
@@ -16,11 +16,47 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
     
-    .container { width: 100%; max-width: 380px; background: var(--card-bg); border-radius: 24px; padding: 28px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; }
+    .container { width: 100%; max-width: 380px; background: var(--card-bg); border-radius: 24px; padding: 28px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; position: relative; }
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
 
-    /* ★ 画面内に絶対出る「付箋ポップアップ」のスタイル */
+    /* 初めての人向け通知許可モーダル */
+    .guide-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(45, 53, 49, 0.92);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #FFF;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .guide-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .guide-icon { font-size: 36px; margin-bottom: 10px; }
+    .guide-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .guide-desc { font-size: 12px; color: #E0E5E1; line-height: 1.6; margin-bottom: 18px; }
+    .guide-btn {
+      background: var(--accent-green);
+      color: #FFF;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* 画面内付箋ポップアップ（タブ開いてる時用） */
     .sticky-toast {
       position: fixed;
       bottom: -120px;
@@ -38,9 +74,7 @@
       z-index: 9999;
       text-align: left;
     }
-    .sticky-toast.show {
-      bottom: 20px; /* スッと画面下から飛び出す */
-    }
+    .sticky-toast.show { bottom: 20px; }
     .toast-icon { font-size: 28px; }
     .toast-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
     .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
@@ -62,7 +96,7 @@
 </head>
 <body>
 
-  <!-- ★ 画面内付箋ポップアップ構造 -->
+  <!-- 画面内付箋ポップアップ -->
   <div id="stickyToast" class="sticky-toast">
     <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
     <div>
@@ -73,6 +107,18 @@
   </div>
 
   <div class="container">
+    <!-- 初めての人用モーダル -->
+    <div id="guideOverlay" class="guide-overlay">
+      <div class="guide-icon">🔔</div>
+      <div class="guide-title">デスクトップ通知の許可</div>
+      <div class="guide-desc">
+        別画面を開いていても時間になったら付箋を出します。<br>
+        このあとポップアップで<b>「許可」</b>を選んでください！<br><br>
+        <small style="color:#A0B0A5;">※出ない場合はURL横の🔔マークから許可できます</small>
+      </div>
+      <button class="guide-btn" onclick="allowNotification()">通知を許可してスタート</button>
+    </div>
+
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
@@ -100,7 +146,7 @@
       </div>
     </div>
 
-    <button class="start-btn" id="startBtn" onclick="toggleTimer()">スタート</button>
+    <button class="start-btn" id="startBtn" onclick="handleStartClick()">スタート</button>
     <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
   </div>
 
@@ -140,6 +186,26 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.001);
       } catch(e) {}
+    }
+
+    function handleStartClick() {
+      initAudio();
+      if ("Notification" in window && Notification.permission === "default") {
+        document.getElementById('guideOverlay').classList.add('active');
+      } else {
+        toggleTimer();
+      }
+    }
+
+    function allowNotification() {
+      document.getElementById('guideOverlay').classList.remove('active');
+      if ("Notification" in window) {
+        Notification.requestPermission().then(function() {
+          toggleTimer();
+        });
+      } else {
+        toggleTimer();
+      }
     }
 
     function playAudio() {
@@ -197,9 +263,8 @@
     function sendNotification(title, body) {
       playAudio();
       startBlinkingTitle("🔔 " + title);
-      showStickyToast(title, body); // 1. 画面内に付箋アニメーションを表示
+      showStickyToast(title, body);
 
-      // 2. OS側のデスクトップ通知（許可されている場合）
       if ("Notification" in window && Notification.permission === "granted") {
         try {
           var n = new Notification(title, { body: body, requireInteraction: true });
@@ -269,21 +334,22 @@
     function testTimer(s) {
       initAudio();
       closeToast();
-      stopBlinkingTitle();
-      isRunning = false;
-      worker.postMessage('stop');
-      timeLeft = s;
-      updateDisplay();
-      toggleTimer();
+      if ("Notification" in window && Notification.permission === "default") {
+        document.getElementById('guideOverlay').classList.add('active');
+      } else {
+        stopBlinkingTitle();
+        isRunning = false;
+        worker.postMessage('stop');
+        timeLeft = s;
+        updateDisplay();
+        toggleTimer();
+      }
     }
 
     function toggleTimer() {
       initAudio();
       closeToast();
       stopBlinkingTitle();
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
       if (isRunning) {
         isRunning = false;
         worker.postMessage('stop');
