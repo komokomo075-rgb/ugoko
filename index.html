@@ -6,24 +6,20 @@
   <title>うごこ。 | ugoko - 座りっぱなしを、ちょっと減らそう。</title>
   <style>
     :root {
-      --bg-color: #F2F4F2;      /* 目に優しいナチュラルグレー */
-      --card-bg: #FAFCFA;      /* 温かみのあるオフホワイト */
-      --text-main: #2D3531;    /* 落ち着いたダークグリーン */
-      --text-sub: #78887F;     /* セージグリーン */
-      --accent-green: #68A865; /* やわらかいメイングリーン */
-      --border-color: #E0E5E1; /* 柔らかい枠線 */
+      --bg-color: #F2F4F2;
+      --card-bg: #FAFCFA;
+      --text-main: #2D3531;
+      --text-sub: #78887F;
+      --accent-green: #68A865;
+      --border-color: #E0E5E1;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
     
-    /* カードコンテナ */
     .container { width: 100%; max-width: 380px; background: var(--card-bg); border-radius: 24px; padding: 28px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; }
-    
-    /* ブランドヘッダー */
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
 
-    /* キャラクター画像（サイズ調整＆枠からはみ出さない設定） */
     .chara-img {
       max-width: 110px;
       max-height: 110px;
@@ -34,7 +30,6 @@
       margin: 0 auto 12px auto;
     }
 
-    /* 状態バッジ（完全中央配置） */
     .status-badge {
       display: inline-block;
       padding: 6px 16px;
@@ -46,7 +41,6 @@
       margin-bottom: 8px;
     }
 
-    /* タイマー表示 */
     .timer-display {
       font-size: 56px;
       font-weight: 500;
@@ -55,14 +49,12 @@
       color: var(--text-main);
     }
 
-    /* 設定エリア */
     .setting-group { margin-bottom: 14px; text-align: left; }
     .setting-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; display: block; }
     .options-grid { display: flex; gap: 6px; }
     .opt-btn { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 0; font-size: 12px; color: var(--text-main); cursor: pointer; }
     .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 600; }
     
-    /* スタートボタン */
     .start-btn {
       width: 100%;
       background: var(--accent-green);
@@ -84,20 +76,15 @@
 <body>
 
   <div class="container">
-    <!-- 1. ロゴタイトル -->
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
-    <!-- 2. キャラクターイラスト -->
     <img id="charaImg" src="chara-focus.png" alt="うごこ。キャラクター" class="chara-img">
     
-    <!-- 3. 状態バッジ -->
     <div id="statusBadge" class="status-badge">集中タイム（Focus）</div>
 
-    <!-- 4. タイマー数字 -->
     <div class="timer-display" id="timerDisplay">30:00</div>
 
-    <!-- 5. 設定グループ -->
     <div class="setting-group">
       <span class="setting-label">集中時間（Focus）</span>
       <div class="options-grid">
@@ -118,39 +105,81 @@
       </div>
     </div>
 
-    <!-- 6. コントロールボタン -->
     <button class="start-btn" id="startBtn" onclick="toggleTimer()">スタート</button>
     <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
   </div>
 
   <script>
-    var focusMinutes = 30, moveMinutes = 2, timeLeft = focusMinutes * 60, timerId = null, isRunning = false, endTime = 0;
+    var focusMinutes = 30, moveMinutes = 2, timeLeft = focusMinutes * 60, isRunning = false, endTime = 0;
     var mode = "focus";
+    var blinkInterval = null;
+    var audioCtx = null;
 
-    // 通知の初回許可チェック
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
+    // 単一のWeb Workerを生成して使い回す（メモリリーク防止）
+    var workerCode = `
+      let timer = null;
+      onmessage = function(e) {
+        if (e.data === 'start') {
+          if (timer) clearInterval(timer);
+          timer = setInterval(() => postMessage('tick'), 250);
+        } else if (e.data === 'stop') {
+          if (timer) { clearInterval(timer); timer = null; }
+        }
+      };
+    `;
+    var workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+    var worker = new Worker(URL.createObjectURL(workerBlob));
+
+    worker.onmessage = function() {
+      if (isRunning) checkTimer();
+    };
+
+    // オーディオ再生権限のロック解除（Audio Unlocking）
+    function initAudio() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        // 0.001秒の無音を出力してブラウザに許可させる
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.001);
+      } catch(e) {}
     }
 
-    // 「ド・ミ・ソ♪」のチャイム音を鳴らす関数
+    function requestNotificationPermission() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+      initAudio();
+    }
+
+    // チャイム音再生（ド・ミ・ソ♪）
     function playAudio() {
       try {
-        var ctx = new (window.AudioContext || window.webkitAudioContext)();
-        var notes = [523.25, 659.25, 783.99]; // ド(C5), ミ(E5), ソ(G5)
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
 
+        var notes = [523.25, 659.25, 783.99]; // ド, ミ, ソ
         notes.forEach(function(freq, index) {
-          var startTime = ctx.currentTime + (index * 0.15); // ポロン♪ポロン♪ポロン♪
-          var osc = ctx.createOscillator();
-          var gain = ctx.createGain();
+          var startTime = audioCtx.currentTime + (index * 0.15);
+          var osc = audioCtx.createOscillator();
+          var gain = audioCtx.createGain();
 
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, startTime);
-
-          gain.gain.setValueAtTime(0.15, startTime);
+          gain.gain.setValueAtTime(0.2, startTime);
           gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.6);
 
           osc.connect(gain);
-          gain.connect(ctx.destination);
+          gain.connect(audioCtx.destination);
 
           osc.start(startTime);
           osc.stop(startTime + 0.6);
@@ -160,20 +189,52 @@
       }
     }
 
-    // デスクトップ通知 ＋ 「ド・ミ・ソ♪」を送信する関数
-    function sendNotification(title, body) {
-      playAudio(); // ド・ミ・ソ♪ を鳴らす
-      
-      if ("Notification" in window && Notification.permission === "granted") {
-        var n = new Notification(title, { 
-          body: body,
-          icon: mode === 'focus' ? 'chara-move.png' : 'chara-focus.png'
-        });
-        n.onclick = function() { 
-          window.focus(); 
-        };
+    // タブタイトル点滅処理
+    function startBlinkingTitle(msg) {
+      stopBlinkingTitle();
+      var toggle = false;
+      blinkInterval = setInterval(function() {
+        document.title = toggle ? msg : "【うごこ。】";
+        toggle = !toggle;
+      }, 800);
+    }
+
+    function stopBlinkingTitle() {
+      if (blinkInterval) {
+        clearInterval(blinkInterval);
+        blinkInterval = null;
       }
     }
+
+    // デスクトップ通知送信
+    function sendNotification(title, body) {
+      playAudio();
+      startBlinkingTitle("🔔 " + title);
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          var n = new Notification(title, { 
+            body: body,
+            icon: mode === 'move' ? 'chara-move.png' : 'chara-focus.png',
+            requireInteraction: true
+          });
+          n.onclick = function() { 
+            window.focus(); 
+            stopBlinkingTitle();
+            n.close();
+          };
+        } catch(e) {
+          console.log("Notification Error:", e);
+        }
+      }
+    }
+
+    // フォーカス復帰時のタイトル復元
+    window.addEventListener('focus', function() {
+      stopBlinkingTitle();
+      if (isRunning) checkTimer();
+      else updateDisplay();
+    });
 
     function padZero(n) { return n < 10 ? '0' + n : '' + n; }
 
@@ -181,7 +242,9 @@
       var m = padZero(Math.floor(timeLeft / 60));
       var s = padZero(timeLeft % 60);
       document.getElementById('timerDisplay').innerText = m + ':' + s;
-      document.title = '(' + m + ':' + s + ') うごこ。';
+      if (!blinkInterval) {
+        document.title = '(' + m + ':' + s + ') うごこ。';
+      }
     }
 
     function switchMode(newMode) {
@@ -226,23 +289,21 @@
     }
 
     function testTimer(s) {
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
-      clearInterval(timerId);
+      requestNotificationPermission();
+      stopBlinkingTitle();
+      isRunning = false;
+      worker.postMessage('stop');
       timeLeft = s;
       updateDisplay();
       startTimer();
     }
 
     function toggleTimer() {
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
-      
+      requestNotificationPermission();
+      stopBlinkingTitle();
       if (isRunning) {
-        clearInterval(timerId);
         isRunning = false;
+        worker.postMessage('stop');
         document.getElementById('startBtn').innerText = 'スタート';
       } else {
         startTimer();
@@ -253,15 +314,14 @@
       isRunning = true;
       document.getElementById('startBtn').innerText = '一時停止';
       endTime = (new Date()).getTime() + timeLeft * 1000;
-      clearInterval(timerId);
-      timerId = setInterval(checkTimer, 200);
+      worker.postMessage('start');
     }
 
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
-        clearInterval(timerId);
         isRunning = false;
+        worker.postMessage('stop');
         document.getElementById('startBtn').innerText = 'スタート';
         
         if (mode === 'focus') {
