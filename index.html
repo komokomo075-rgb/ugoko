@@ -46,7 +46,7 @@
     /* 画面内付箋ポップアップ（サイト内にいるとき用） */
     .sticky-toast {
       position: fixed;
-      bottom: -150px;
+      bottom: -180px;
       right: 20px;
       width: 330px;
       background: #FFFFFF;
@@ -65,12 +65,12 @@
     .sticky-toast.show { bottom: 20px; }
     .toast-icon { font-size: 28px; }
     .toast-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
-    .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 4px; line-height: 1.4; }
+    .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 4px; line-height: 1.5; }
     
-    /* ★ クリックを促す絵文字だけ超巨大化！ */
+    /* クリックを促す絵文字を拡大 */
     .big-emoji-btn {
       display: inline-block;
-      font-size: 26px;
+      font-size: 24px;
       vertical-align: middle;
       margin: 0 2px;
       animation: pulse 1.5s infinite;
@@ -103,10 +103,7 @@
     <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
     <div>
       <div class="toast-title" id="toastTitle">そろそろ、うごこ！</div>
-      <div class="toast-body" id="toastBody">
-        ここをクリック→<span class="big-emoji-btn" id="toastEmojiBtn">🚶‍♂️</span>でスタート！<br>
-        <small style="color:#E74C3C; font-size: 10px;">※右上「×（閉じる）」は押さないでね</small>
-      </div>
+      <div class="toast-body" id="toastBody"></div>
     </div>
   </div>
 
@@ -238,10 +235,15 @@
       } catch(e) {}
     }
 
-    function showStickyToast(title, bodyText, emoji) {
+    function showStickyToast(title, mainMessage, emoji, nextModeName) {
       document.getElementById('toastTitle').innerText = title;
-      document.getElementById('toastIcon').innerText = mode === 'focus' ? '🚶‍♂️' : '☕';
-      document.getElementById('toastEmojiBtn').innerText = emoji;
+      document.getElementById('toastIcon').innerText = mode === 'focus' ? '🚶‍♂️' : '💻';
+      
+      var toastBodyHTML = mainMessage + '<br>' +
+        'この絵文字をクリック→<span class="big-emoji-btn">' + emoji + '</span>で『' + nextModeName + '』を始めよう！<br>' +
+        '<small style="color:#E74C3C; font-size: 10px;">※「×(閉じる)」は押さないでね</small>';
+        
+      document.getElementById('toastBody').innerHTML = toastBodyHTML;
       document.getElementById('stickyToast').classList.add('show');
     }
 
@@ -281,14 +283,18 @@
       }
     }
 
-    function sendNotification(title, bodyText, emoji) {
+    function sendNotification(title, mainMessage, emoji, nextModeName) {
       playAudio();
       startBlinkingTitle("🔔 " + title);
-      showStickyToast(title, bodyText, emoji);
+      showStickyToast(title, mainMessage, emoji, nextModeName);
 
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          activeNotification = new Notification(title, { body: bodyText, requireInteraction: true });
+          var notificationText = mainMessage + "\n" +
+            "この絵文字をクリック→" + emoji + "で『" + nextModeName + "』に戻ろう！\n" +
+            "※「×(閉じる)」は押さないでね";
+
+          activeNotification = new Notification(title, { body: notificationText, requireInteraction: true });
           
           activeNotification.onclick = function() {
             window.focus();
@@ -390,7 +396,7 @@
       worker.postMessage('start');
     }
 
-    // ★ 「ここをクリック→絵文字」＋「※×(閉じる)は押さないでね」を追加！
+    // ★ 文言・改行・絵文字表現の変更箇所
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
@@ -403,14 +409,16 @@
         if (mode === 'focus') {
           sendNotification(
             "🚶‍♂️ そろそろ、うごこ！",
-            focusMinutes + "分経ちました！ここをクリック→🚶‍♂️で『動くタイム』を始めよう！\n※「×(閉じる)」は押さないでね",
-            "🚶‍♂️"
+            focusMinutes + "分経ちました！",
+            "🚶‍♂️",
+            "動くタイム"
           );
         } else {
           sendNotification(
-            "☕ おつかれさまでした！",
-            "休憩終了です！ここをクリック→☕で『集中タイム』に戻ろう！\n※「×(閉じる)」は押さないでね",
-            "☕"
+            "💻 おつかれさまでした！",
+            "休憩終了です！",
+            "💻",
+            "集中タイム"
           );
         }
       } else {
