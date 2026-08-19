@@ -20,11 +20,11 @@
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
 
-    /* 初めての人向け通知許可ガイドモーダル */
+    /* 通知許可モーダル */
     .guide-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(45, 53, 49, 0.85);
+      background: rgba(45, 53, 49, 0.9);
       border-radius: 24px;
       display: flex;
       flex-direction: column;
@@ -73,15 +73,15 @@
 <body>
 
   <div class="container">
-    <!-- 初めての人用：通知誘導オーバーレイ -->
+    <!-- 初めての人用モーダル -->
     <div id="guideOverlay" class="guide-overlay">
       <div class="guide-icon">🔔</div>
-      <div class="guide-title">通知を許可してください</div>
+      <div class="guide-title">デスクトップ通知の許可</div>
       <div class="guide-desc">
-        時間になったらデスクトップ通知と音でお知らせします。<br>
-        次の画面で<b>「許可」</b>を選んでね！
+        時間になったら画面の端に付箋通知を出します。<br>
+        このあと出るポップアップで<b>「許可」</b>を押してください！
       </div>
-      <button class="guide-btn" onclick="allowNotification()">OK！通知を許可する</button>
+      <button class="guide-btn" onclick="allowNotification()">通知を許可してスタート</button>
     </div>
 
     <div class="brand-title">うごこ。</div>
@@ -153,10 +153,8 @@
       } catch(e) {}
     }
 
-    // スタートボタンを押した時の処理
     function handleStartClick() {
       initAudio();
-      // 通知が未設定（初回）の場合はガイドを出す
       if ("Notification" in window && Notification.permission === "default") {
         document.getElementById('guideOverlay').classList.add('active');
       } else {
@@ -164,11 +162,13 @@
       }
     }
 
-    // ガイド内の「OK！」ボタンを押した時の処理
     function allowNotification() {
       document.getElementById('guideOverlay').classList.remove('active');
       if ("Notification" in window) {
-        Notification.requestPermission().then(function() {
+        Notification.requestPermission().then(function(permission) {
+          if (permission === 'granted') {
+            console.log('通知が許可されました');
+          }
           toggleTimer();
         });
       } else {
@@ -221,15 +221,21 @@
       playAudio();
       startBlinkingTitle("🔔 " + title);
 
+      // デスクトップ通知（付箋）を発行
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          var n = new Notification(title, { body: body, requireInteraction: true });
+          var n = new Notification(title, { 
+            body: body, 
+            requireInteraction: true 
+          });
           n.onclick = function() { 
             window.focus(); 
             stopBlinkingTitle();
             n.close();
           };
-        } catch(e) {}
+        } catch(e) {
+          console.log("Notification Error:", e);
+        }
       }
     }
 
