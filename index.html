@@ -306,9 +306,12 @@
     function sendNotification(title, mainMessage, emoji, nextModeName) {
       playAudio();
       startBlinkingTitle("🔔 " + title);
+      
+      // 画面内にポップアップ表示
       showStickyToast(title, mainMessage, emoji, nextModeName);
 
-      if ("Notification" in window && Notification.permission === "granted") {
+      // ★タブや画面が非表示（裏側）の時だけ、PCデスクトップ通知を出す
+      if (document.hidden && "Notification" in window && Notification.permission === "granted") {
         try {
           var notificationText = mainMessage + "\n" +
             "この絵文字をクリック→" + emoji + "で『" + nextModeName + "』に戻ろう！\n" +
