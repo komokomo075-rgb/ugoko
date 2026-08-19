@@ -16,38 +16,49 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
     
-    .container { width: 100%; max-width: 380px; background: var(--card-bg); border-radius: 24px; padding: 28px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; }
+    .container { width: 100%; max-width: 380px; background: var(--card-bg); border-radius: 24px; padding: 28px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; position: relative; }
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
 
-    .chara-img {
-      max-width: 110px;
-      max-height: 110px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 12px auto;
+    /* 初めての人向け通知許可ガイドモーダル */
+    .guide-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(45, 53, 49, 0.85);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #FFF;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
     }
-
-    .status-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 13px;
+    .guide-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .guide-icon { font-size: 40px; margin-bottom: 12px; }
+    .guide-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .guide-desc { font-size: 13px; color: #E0E5E1; line-height: 1.5; margin-bottom: 20px; }
+    .guide-btn {
+      background: var(--accent-green);
+      color: #FFF;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
       font-weight: 600;
-      background: #E6F0E6;
-      color: var(--accent-green);
-      margin-bottom: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    .timer-display {
-      font-size: 56px;
-      font-weight: 500;
-      letter-spacing: 1px;
-      margin: 4px 0 16px;
-      color: var(--text-main);
-    }
+    .chara-img { max-width: 110px; max-height: 110px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 12px auto; }
+    .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 8px; }
+    .timer-display { font-size: 56px; font-weight: 500; letter-spacing: 1px; margin: 4px 0 16px; color: var(--text-main); }
 
     .setting-group { margin-bottom: 14px; text-align: left; }
     .setting-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; display: block; }
@@ -55,34 +66,29 @@
     .opt-btn { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 0; font-size: 12px; color: var(--text-main); cursor: pointer; }
     .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 600; }
     
-    .start-btn {
-      width: 100%;
-      background: var(--accent-green);
-      color: #FFF;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s;
-    }
-    .start-btn:hover { opacity: 0.9; }
+    .start-btn { width: 100%; background: var(--accent-green); color: #FFF; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
     .test-btn { width: 100%; background: transparent; border: none; color: var(--text-sub); font-size: 11px; margin-top: 10px; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="container">
+    <!-- 初めての人用：通知誘導オーバーレイ -->
+    <div id="guideOverlay" class="guide-overlay">
+      <div class="guide-icon">🔔</div>
+      <div class="guide-title">通知を許可してください</div>
+      <div class="guide-desc">
+        時間になったらデスクトップ通知と音でお知らせします。<br>
+        次の画面で<b>「許可」</b>を選んでね！
+      </div>
+      <button class="guide-btn" onclick="allowNotification()">OK！通知を許可する</button>
+    </div>
+
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
     <img id="charaImg" src="chara-focus.png" alt="うごこ。キャラクター" class="chara-img">
-    
     <div id="statusBadge" class="status-badge">集中タイム（Focus）</div>
-
     <div class="timer-display" id="timerDisplay">30:00</div>
 
     <div class="setting-group">
@@ -105,7 +111,7 @@
       </div>
     </div>
 
-    <button class="start-btn" id="startBtn" onclick="toggleTimer()">スタート</button>
+    <button class="start-btn" id="startBtn" onclick="handleStartClick()">スタート</button>
     <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
   </div>
 
@@ -115,7 +121,6 @@
     var blinkInterval = null;
     var audioCtx = null;
 
-    // 単一のWeb Workerを生成して使い回す（メモリリーク防止）
     var workerCode = `
       let timer = null;
       onmessage = function(e) {
@@ -134,16 +139,10 @@
       if (isRunning) checkTimer();
     };
 
-    // オーディオ再生権限のロック解除（Audio Unlocking）
     function initAudio() {
       try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        // 0.001秒の無音を出力してブラウザに許可させる
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         var osc = audioCtx.createOscillator();
         var gain = audioCtx.createGain();
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -154,20 +153,35 @@
       } catch(e) {}
     }
 
-    function requestNotificationPermission() {
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
+    // スタートボタンを押した時の処理
+    function handleStartClick() {
       initAudio();
+      // 通知が未設定（初回）の場合はガイドを出す
+      if ("Notification" in window && Notification.permission === "default") {
+        document.getElementById('guideOverlay').classList.add('active');
+      } else {
+        toggleTimer();
+      }
     }
 
-    // チャイム音再生（ド・ミ・ソ♪）
+    // ガイド内の「OK！」ボタンを押した時の処理
+    function allowNotification() {
+      document.getElementById('guideOverlay').classList.remove('active');
+      if ("Notification" in window) {
+        Notification.requestPermission().then(function() {
+          toggleTimer();
+        });
+      } else {
+        toggleTimer();
+      }
+    }
+
     function playAudio() {
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        var notes = [523.25, 659.25, 783.99]; // ド, ミ, ソ
+        var notes = [523.25, 659.25, 783.99];
         notes.forEach(function(freq, index) {
           var startTime = audioCtx.currentTime + (index * 0.15);
           var osc = audioCtx.createOscillator();
@@ -184,12 +198,9 @@
           osc.start(startTime);
           osc.stop(startTime + 0.6);
         });
-      } catch(e) {
-        console.log("Audio Error:", e);
-      }
+      } catch(e) {}
     }
 
-    // タブタイトル点滅処理
     function startBlinkingTitle(msg) {
       stopBlinkingTitle();
       var toggle = false;
@@ -206,30 +217,22 @@
       }
     }
 
-    // デスクトップ通知送信
     function sendNotification(title, body) {
       playAudio();
       startBlinkingTitle("🔔 " + title);
 
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          var n = new Notification(title, { 
-            body: body,
-            icon: mode === 'move' ? 'chara-move.png' : 'chara-focus.png',
-            requireInteraction: true
-          });
+          var n = new Notification(title, { body: body, requireInteraction: true });
           n.onclick = function() { 
             window.focus(); 
             stopBlinkingTitle();
             n.close();
           };
-        } catch(e) {
-          console.log("Notification Error:", e);
-        }
+        } catch(e) {}
       }
     }
 
-    // フォーカス復帰時のタイトル復元
     window.addEventListener('focus', function() {
       stopBlinkingTitle();
       if (isRunning) checkTimer();
@@ -289,17 +292,20 @@
     }
 
     function testTimer(s) {
-      requestNotificationPermission();
-      stopBlinkingTitle();
-      isRunning = false;
-      worker.postMessage('stop');
-      timeLeft = s;
-      updateDisplay();
-      startTimer();
+      initAudio();
+      if ("Notification" in window && Notification.permission === "default") {
+        document.getElementById('guideOverlay').classList.add('active');
+      } else {
+        stopBlinkingTitle();
+        isRunning = false;
+        worker.postMessage('stop');
+        timeLeft = s;
+        updateDisplay();
+        toggleTimer();
+      }
     }
 
     function toggleTimer() {
-      requestNotificationPermission();
       stopBlinkingTitle();
       if (isRunning) {
         isRunning = false;
