@@ -56,10 +56,10 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* 画面内付箋ポップアップ（タブ開いてる時用） */
+    /* 画面内付箋ポップアップ（OKボタン付き） */
     .sticky-toast {
       position: fixed;
-      bottom: -120px;
+      bottom: -150px;
       right: 20px;
       width: 320px;
       background: #FFFFFF;
@@ -68,17 +68,29 @@
       padding: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.15);
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 10px;
       transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 9999;
       text-align: left;
     }
     .sticky-toast.show { bottom: 20px; }
+    .toast-content { display: flex; align-items: center; gap: 12px; }
     .toast-icon { font-size: 28px; }
     .toast-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
     .toast-body { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-    .toast-close { margin-left: auto; background: none; border: none; font-size: 16px; color: #AAA; cursor: pointer; }
+    .toast-ok-btn {
+      align-self: flex-end;
+      background: var(--accent-green);
+      color: #FFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
     .chara-img { max-width: 110px; max-height: 110px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 12px auto; }
     .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 8px; }
@@ -96,14 +108,16 @@
 </head>
 <body>
 
-  <!-- 画面内付箋ポップアップ -->
+  <!-- OKボタン付きの画面内付箋ポップアップ -->
   <div id="stickyToast" class="sticky-toast">
-    <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
-    <div>
-      <div class="toast-title" id="toastTitle">そろそろ、うごこ！</div>
-      <div class="toast-body" id="toastBody">時間になりました。動くタイムをはじめましょう！</div>
+    <div class="toast-content">
+      <div class="toast-icon" id="toastIcon">🚶‍♂️</div>
+      <div>
+        <div class="toast-title" id="toastTitle">そろそろ、うごこ！</div>
+        <div class="toast-body" id="toastBody">時間になりました。動くタイムをはじめましょう！</div>
+      </div>
     </div>
-    <button class="toast-close" onclick="closeToast()">✕</button>
+    <button class="toast-ok-btn" onclick="handleOkClick()">OK</button>
   </div>
 
   <div class="container">
@@ -155,6 +169,7 @@
     var mode = "focus";
     var blinkInterval = null;
     var audioCtx = null;
+    var activeNotification = null;
 
     var workerCode = `
       let timer = null;
@@ -236,12 +251,30 @@
     function showStickyToast(title, body) {
       document.getElementById('toastTitle').innerText = title;
       document.getElementById('toastBody').innerText = body;
-      document.getElementById('toastIcon').innerText = mode === 'move' ? '🚶‍♂️' : '☕';
+      document.getElementById('toastIcon').innerText = mode === 'focus' ? '🚶‍♂️' : '☕';
       document.getElementById('stickyToast').classList.add('show');
     }
 
     function closeToast() {
       document.getElementById('stickyToast').classList.remove('show');
+      if (activeNotification) {
+        activeNotification.close();
+        activeNotification = null;
+      }
+    }
+
+    // ★ OKボタンが押された時の処理
+    function handleOkClick() {
+      closeToast();
+      stopBlinkingTitle();
+
+      // モードを切り替えて、新しいカウントダウンを自動スタート
+      if (mode === 'focus') {
+        switchMode('move');
+      } else {
+        switchMode('focus');
+      }
+      startTimer();
     }
 
     function startBlinkingTitle(msg) {
@@ -267,14 +300,16 @@
 
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          var n = new Notification(title, { body: body, requireInteraction: true });
-          n.onclick = function() { window.focus(); stopBlinkingTitle(); closeToast(); n.close(); };
+          activeNotification = new Notification(title, { body: body, requireInteraction: true });
+          activeNotification.onclick = function() {
+            window.focus();
+            handleOkClick(); // OS通知クリックでOKと同じ動線にする
+          };
         } catch(e) {}
       }
     }
 
     window.addEventListener('focus', function() {
-      stopBlinkingTitle();
       if (isRunning) checkTimer();
       else updateDisplay();
     });
@@ -334,10 +369,10 @@
     function testTimer(s) {
       initAudio();
       closeToast();
+      stopBlinkingTitle();
       if ("Notification" in window && Notification.permission === "default") {
         document.getElementById('guideOverlay').classList.add('active');
       } else {
-        stopBlinkingTitle();
         isRunning = false;
         worker.postMessage('stop');
         timeLeft = s;
@@ -369,16 +404,18 @@
     function checkTimer() {
       var remainingMs = endTime - (new Date()).getTime();
       if (remainingMs <= 0) {
+        // カウントダウン終了時の挙動
         isRunning = false;
         worker.postMessage('stop');
         document.getElementById('startBtn').innerText = 'スタート';
+        timeLeft = 0;
+        updateDisplay();
         
+        // 休憩へ移る通知 または 集中へ戻る通知を発行
         if (mode === 'focus') {
-          switchMode('move');
-          sendNotification("🚶‍♂️ そろそろ、うごこ！", focusMinutes + "分経ちました！動くタイムをスタートしましょう。");
+          sendNotification("🚶‍♂️ そろそろ、うごこ！", focusMinutes + "分経ちました！OKを押して動くタイムを始めましょう。");
         } else {
-          switchMode('focus');
-          sendNotification("☕ おつかれさまでした！", "休憩終了です。集中タイムに戻りましょう。");
+          sendNotification("☕ おつかれさまでした！", "休憩終了です！OKを押して集中タイムに戻りましょう。");
         }
       } else {
         timeLeft = Math.ceil(remainingMs / 1000);
