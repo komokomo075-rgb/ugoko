@@ -1,244 +1,280 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>うごこ。</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f4f5f0;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #333;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 24px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-      width: 100%;
-      max-width: 320px;
-      text-align: center;
-    }
-    .chara-img {
-      width: 140px;
-      height: 140px;
-      object-fit: contain;
-      margin-bottom: 10px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 16px;
-      background-color: #e2f0d9;
-      color: #557a46;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .timer {
-      font-size: 48px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin: 10px 0 20px;
-      color: #2b2b2b;
-    }
-    .section-title {
-      font-size: 11px;
-      color: #888;
-      margin-bottom: 6px;
-      text-align: left;
-    }
-    .btn-group {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .btn-option {
-      flex: 1;
-      padding: 8px 0;
-      background: #f0f0f0;
-      border: none;
-      border-radius: 8px;
-      font-size: 12px;
-      cursor: pointer;
-      color: #555;
-    }
-    .btn-option.active {
-      background: #62a363;
-      color: white;
-      font-weight: bold;
-    }
-    .btn-main {
-      width: 100%;
-      padding: 14px;
-      background-color: #62a363;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-main:hover {
-      background-color: #4f8550;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>うごこ。 | ugoko - 座りっぱなしを、ちょっと減らそう。</title>
+  <style>
+    :root {
+      --bg-color: #F2F4F2;      /* 目に優しいナチュラルグレー */
+      --card-bg: #FAFCFA;      /* 温かみのあるオフホワイト */
+      --text-main: #2D3531;    /* 落ち着いたダークグリーン */
+      --text-sub: #78887F;     /* セージグリーン */
+      --accent-green: #68A865; /* やわらかいメイングリーン */
+      --border-color: #E0E5E1; /* 柔らかい枠線 */
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    
+    /* カードコンテナ */
+    .container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 24px; padding: 32px 24px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; }
+    
+    /* ブランドヘッダー */
+    .brand-title { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+    .brand-concept { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
+
+    /* キャラクター画像（境界線を馴染ませて中央配置） */
+    .chara-img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 12px auto;
+      mix-blend-mode: multiply; /* 画像の背景白をカード背景に自然に馴染ませる */
+    }
+
+    /* 状態バッジ（完全中央配置） */
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #E6F0E6;
+      color: var(--accent-green);
+      margin-bottom: 8px;
+    }
+
+    /* タイマー表示（視認性を向上） */
+    .timer-display {
+      font-size: 64px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      margin: 4px 0 20px;
+      color: var(--text-main);
+    }
+
+    /* 設定エリア */
+    .setting-group { margin-bottom: 16px; text-align: left; }
+    .setting-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; display: block; }
+    .options-grid { display: flex; gap: 6px; }
+    .opt-btn { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 0; font-size: 12px; color: var(--text-main); cursor: pointer; }
+    .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 600; }
+    
+    /* スタートボタン（文字間隔と操作感の向上） */
+    .start-btn {
+      width: 100%;
+      background: var(--accent-green);
+      color: #FFF;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: opacity 0.2s;
+    }
+    .start-btn:hover { opacity: 0.9; }
+    .test-btn { width: 100%; background: transparent; border: none; color: var(--text-sub); font-size: 11px; margin-top: 12px; cursor: pointer; text-decoration: underline; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-  <img id="chara" class="chara-img" src="chara-focus.png" alt="キャラクター">
-  <div><span id="mode-badge" class="badge">Focus</span></div>
-  <div id="timer" class="timer">30:00</div>
+  <div class="container">
+    <!-- 1. ロゴタイトル -->
+    <div class="brand-title">うごこ。</div>
+    <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
-  <div class="section-title">Focus</div>
-  <div class="btn-group">
-    <button class="btn-option" onclick="setFocus(15)">15</button>
-    <button class="btn-option active" onclick="setFocus(30)">30</button>
-    <button class="btn-option" onclick="setFocus(45)">45</button>
-    <button class="btn-option" onclick="setFocus(50)">50</button>
-  </div>
+    <!-- 2. キャラクターイラスト -->
+    <img id="charaImg" src="chara-focus.png" alt="うごこ。キャラクター" class="chara-img">
+    
+    <!-- 3. 状態バッジ -->
+    <div id="statusBadge" class="status-badge">集中タイム（Focus）</div>
 
-  <div class="section-title">Move</div>
-  <div class="btn-group">
-    <button class="btn-option" onclick="setMove(1)">1</button>
-    <button class="btn-option active" onclick="setMove(2)">2</button>
-    <button class="btn-option" onclick="setMove(3)">3</button>
-    <button class="btn-option" onclick="setMove(5)">5</button>
-  </div>
+    <!-- 4. タイマー数字 -->
+    <div class="timer-display" id="timerDisplay">30:00</div>
 
-  <button id="start-btn" class="btn-main" onclick="toggleTimer()">スタート</button>
-</div>
+    <!-- 5. 設定グループ -->
+    <div class="setting-group">
+      <span class="setting-label">集中時間（Focus）</span>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="setFocusTime(25, this)">25分</button>
+        <button class="opt-btn active" onclick="setFocusTime(30, this)">30分</button>
+        <button class="opt-btn" onclick="setFocusTime(45, this)">45分</button>
+        <button class="opt-btn" onclick="setFocusTime(50, this)">50分</button>
+      </div>
+    </div>
 
-<script>
-  let focusTime = 30 * 60;
-  let moveTime = 2 * 60;
-  let timeLeft = focusTime;
-  let isRunning = false;
-  let isFocusMode = true;
-  let timerId = null;
+    <div class="setting-group">
+      <span class="setting-label">ちょこっと動く（Move）</span>
+      <div class="options-grid">
+        <button class="opt-btn" onclick="setMoveTime(1, this)">1分</button>
+        <button class="opt-btn active" onclick="setMoveTime(2, this)">2分</button>
+        <button class="opt-btn" onclick="setMoveTime(3, this)">3分</button>
+        <button class="opt-btn" onclick="setMoveTime(5, this)">5分</button>
+      </div>
+    </div>
 
-  const timerDisplay = document.getElementById('timer');
-  const startBtn = document.getElementById('start-btn');
-  const charaImg = document.getElementById('chara');
-  const modeBadge = document.getElementById('mode-badge');
+    <!-- 6. コントロールボタン -->
+    <button class="start-btn" id="startBtn" onclick="toggleTimer()">スタート</button>
+    <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
+  </div>
 
-  // 通知の許可をリクエスト
-  if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission();
-  }
+  <script>
+    var focusMinutes = 30, moveMinutes = 2, timeLeft = focusMinutes * 60, timerId = null, isRunning = false, endTime = 0;
+    var mode = "focus";
 
-  // 「ド・ミ・ソ♪」の音を鳴らす関数
-  function playDoMiSo() {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
-      // ド(C5), ミ(E5), ソ(G5) の周波数
-      const notes = [523.25, 659.25, 783.99]; 
-      
-      notes.forEach((freq, index) => {
-        const startTime = audioCtx.currentTime + (index * 0.15); // ポロン・ポロン・ポロンとずらして鳴らす
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'sine'; // やわらかい丸い音
-        osc.frequency.setValueAtTime(freq, startTime);
-        
-        // 音量を滑らかに減衰（余韻を残す）
-        gain.gain.setValueAtTime(0.15, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.6);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start(startTime);
-        osc.stop(startTime + 0.6);
-      });
-    } catch(e) {
-      console.log("Audio not supported");
-    }
-  }
+    // 通知の初回許可チェック
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
 
-  // デスクトップ通知を出す関数
-  function sendNotification(title, body) {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(title, { body: body, icon: isFocusMode ? 'chara-focus.png' : 'chara-move.png' });
-    }
-  }
+    // 「ド・ミ・ソ♪」のチャイム音を鳴らす関数
+    function playAudio() {
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var notes = [523.25, 659.25, 783.99]; // ド(C5), ミ(E5), ソ(G5)
 
-  function updateDisplay() {
-    const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const secs = (timeLeft % 60).toString().padStart(2, '0');
-    timerDisplay.textContent = `${mins}:${secs}`;
-    document.title = `(${mins}:${secs}) うごこ。`;
-  }
+        notes.forEach(function(freq, index) {
+          var startTime = ctx.currentTime + (index * 0.15); // ポロン♪ポロン♪ポロン♪
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
 
-  function toggleTimer() {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-    
-    if (isRunning) {
-      clearInterval(timerId);
-      isRunning = false;
-      startBtn.textContent = 'スタート';
-    } else {
-      isRunning = true;
-      startBtn.textContent = '一時停止';
-      timerId = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--;
-          updateDisplay();
-        } else {
-          // タイマー終了処理：「ド・ミ・ソ♪」を鳴らす
-          playDoMiSo();
-          
-          if (isFocusMode) {
-            sendNotification("作業時間終了！", "体を動かしてリフレッシュしましょう！");
-            isFocusMode = false;
-            timeLeft = moveTime;
-            charaImg.src = 'chara-move.png';
-            modeBadge.textContent = 'Move';
-            modeBadge.style.backgroundColor = '#fbe5d6';
-            modeBadge.style.color = '#c55a11';
-          } else {
-            sendNotification("休憩終了！", "次の集中タイムを始めましょう！");
-            isFocusMode = true;
-            timeLeft = focusTime;
-            charaImg.src = 'chara-focus.png';
-            modeBadge.textContent = 'Focus';
-            modeBadge.style.backgroundColor = '#e2f0d9';
-            modeBadge.style.color = '#557a46';
-          }
-          updateDisplay();
-        }
-      }, 1000);
-    }
-  }
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
 
-  function setFocus(mins) {
-    focusTime = mins * 60;
-    if (isFocusMode && !isRunning) {
-      timeLeft = focusTime;
-      updateDisplay();
-    }
-  }
+          gain.gain.setValueAtTime(0.15, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.6);
 
-  function setMove(mins) {
-    moveTime = mins * 60;
-    if (!isFocusMode && !isRunning) {
-      timeLeft = moveTime;
-      updateDisplay();
-    }
-  }
+          osc.connect(gain);
+          gain.connect(ctx.destination);
 
-  updateDisplay();
-</script>
+          osc.start(startTime);
+          osc.stop(startTime + 0.6);
+        });
+      } catch(e) {
+        console.log("Audio Error:", e);
+      }
+    }
+
+    // デスクトップ通知 ＋ 「ド・ミ・ソ♪」を送信する関数
+    function sendNotification(title, body) {
+      playAudio(); // ド・ミ・ソ♪ を鳴らす
+      
+      if ("Notification" in window && Notification.permission === "granted") {
+        var n = new Notification(title, { 
+          body: body,
+          icon: mode === 'focus' ? 'chara-move.png' : 'chara-focus.png'
+        });
+        n.onclick = function() { 
+          window.focus(); 
+        };
+      }
+    }
+
+    function padZero(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function updateDisplay() {
+      var m = padZero(Math.floor(timeLeft / 60));
+      var s = padZero(timeLeft % 60);
+      document.getElementById('timerDisplay').innerText = m + ':' + s;
+      document.title = '(' + m + ':' + s + ') うごこ。';
+    }
+
+    function switchMode(newMode) {
+      mode = newMode;
+      var img = document.getElementById('charaImg');
+      var badge = document.getElementById('statusBadge');
+
+      if (mode === 'focus') {
+        img.src = 'chara-focus.png';
+        badge.innerText = '集中タイム（Focus）';
+        badge.style.background = '#E6F0E6';
+        badge.style.color = '#68A865';
+        timeLeft = focusMinutes * 60;
+      } else {
+        img.src = 'chara-move.png';
+        badge.innerText = '動くタイム（Move）';
+        badge.style.background = '#FFF3E0';
+        badge.style.color = '#E67E22';
+        timeLeft = moveMinutes * 60;
+      }
+      updateDisplay();
+    }
+
+    function setFocusTime(m, el) {
+      if (isRunning) return;
+      focusMinutes = m;
+      if (mode === 'focus') timeLeft = m * 60;
+      updateDisplay();
+      var btns = el.parentElement.getElementsByTagName('button');
+      for (var i = 0; i < btns.length; i++) btns[i].className = 'opt-btn';
+      el.className = 'opt-btn active';
+    }
+
+    function setMoveTime(m, el) {
+      if (isRunning) return;
+      moveMinutes = m;
+      if (mode === 'move') timeLeft = m * 60;
+      updateDisplay();
+      var btns = el.parentElement.getElementsByTagName('button');
+      for (var i = 0; i < btns.length; i++) btns[i].className = 'opt-btn';
+      el.className = 'opt-btn active';
+    }
+
+    function testTimer(s) {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+      clearInterval(timerId);
+      timeLeft = s;
+      updateDisplay();
+      startTimer();
+    }
+
+    function toggleTimer() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+      
+      if (isRunning) {
+        clearInterval(timerId);
+        isRunning = false;
+        document.getElementById('startBtn').innerText = 'スタート';
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      isRunning = true;
+      document.getElementById('startBtn').innerText = '一時停止';
+      endTime = (new Date()).getTime() + timeLeft * 1000;
+      clearInterval(timerId);
+      timerId = setInterval(checkTimer, 200);
+    }
+
+    function checkTimer() {
+      var remainingMs = endTime - (new Date()).getTime();
+      if (remainingMs <= 0) {
+        clearInterval(timerId);
+        isRunning = false;
+        document.getElementById('startBtn').innerText = 'スタート';
+        
+        if (mode === 'focus') {
+          switchMode('move');
+          sendNotification("🚶‍♂️ そろそろ、うごこ！", focusMinutes + "分経ちました！動くタイムをスタートしましょう。");
+        } else {
+          switchMode('focus');
+          sendNotification("☕ おつかれさまでした！", "休憩終了です。集中タイムに戻りましょう。");
+        }
+      } else {
+        timeLeft = Math.ceil(remainingMs / 1000);
+        updateDisplay();
+      }
+    }
+  </script>
 </body>
 </html>
