@@ -20,7 +20,7 @@
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
 
-    /* ★ 最初に出す注意事項モーダル */
+    /* 初めての人向け案内モーダル */
     .guide-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -39,9 +39,9 @@
     }
     .guide-overlay.active { opacity: 1; pointer-events: auto; }
     .guide-icon { font-size: 32px; margin-bottom: 6px; }
-    .guide-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
-    .guide-desc { font-size: 11px; color: #E0E5E1; line-height: 1.6; margin-bottom: 16px; text-align: left; background: rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; }
-    .guide-btn { background: var(--accent-green); color: #FFF; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%; }
+    .guide-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+    .guide-desc { font-size: 12px; color: #E0E5E1; line-height: 1.6; margin-bottom: 18px; text-align: left; background: rgba(255,255,255,0.08); padding: 14px; border-radius: 12px; }
+    .guide-btn { background: var(--accent-green); color: #FFF; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%; }
 
     /* 画面内付箋ポップアップ */
     .sticky-toast {
@@ -107,18 +107,17 @@
   </div>
 
   <div class="container">
-    <!-- ★ サイトを開いた瞬間にでる全般案内モーダル -->
-    <div id="guideOverlay" class="guide-overlay active">
-      <div class="guide-icon">🔔</div>
-      <div class="guide-title">「うごこ。」へようこそ！</div>
-      <div class="guide-desc">
-        快適にお使いいただくためのポイント：<br><br>
-        1. <b>デスクトップ通知：</b>このあとポップアップが出たら<b>「許可」</b>を選んでください。<br>
-        2. <b>通知音：</b>時間になると音が鳴ります。PCの音量をご確認ください。<br>
-        3. <b>届かない場合：</b>URL横の🔒マーク、または<b>PC自体の設定（システム＞通知）</b>がONかご確認ください。
-      </div>
-      <button class="guide-btn" onclick="allowNotification()">確認してはじめる</button>
-    </div>
+   <!-- サイトを開いた瞬間にでる全般案内モーダル -->
+<div id="guideOverlay" class="guide-overlay active">
+  <div class="guide-icon">🔔</div>
+  <div class="guide-title">はじめる前のご確認</div>
+  <div class="guide-desc">
+    別画面を開いていても、時間になったら<b>付箋と音</b>でお知らせします！<br><br>
+    このあと画面に出るポップアップで<b>「許可」</b>を選んでスタートしてください。<br><br>
+    <small style="color:#A0B0A5;">※通知が出ない場合は、PC自体の設定で「通知オフ（通知ベルアイコン）」や「集中モード（応答不可）」になっていないかご確認ください。</small>
+  </div>
+  <button class="guide-btn" onclick="allowNotification()">確認してはじめる</button>
+</div>
 
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
@@ -190,7 +189,6 @@
       } catch(e) {}
     }
 
-    // 最初に出てくるボタンを押した時の処理
     function allowNotification() {
       initAudio();
       document.getElementById('guideOverlay').classList.remove('active');
