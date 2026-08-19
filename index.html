@@ -17,11 +17,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ★検索用タイトル -->
-  <title>うごこ。 | 座りっぱなし対策ポモドーロタイマー（ブラウザで使える無料ツール）</title>
+  <!-- ★【最重要】SEOに一番効く先頭に「座りっぱなし対策」を配置！ -->
+  <title>座りっぱなし対策タイマー「うごこ。」 | デスクワークの健康管理ツール</title>
 
-  <!-- ★Google検索結果用 説明文（追加！） -->
-  <meta name="description" content="デスクワークの座りっぱなし対策に！時間になると画面のすみにポップアップと音でお知らせする無料タイマー『うごこ。』。アプリ不要で今すぐ使えます。">
+  <!-- ★検索結果でクリック率を高める説明文（座りっぱなし対策を自然に盛り込み） -->
+  <meta name="description" content="デスクワークの座りっぱなし対策に！時間になると画面のすみに通知と音でお知らせする健康管理タイマー『うごこ。』。アプリ不要で今すぐ使えます。長時間の座りっぱなしを防ぎ、肩こり・腰痛・血行不良を予防。">
 
   <style>
     :root {
@@ -131,7 +131,8 @@
       <div class="guide-icon">🔔</div>
       <div class="guide-title">はじめる前のご確認</div>
       <div class="guide-desc">
-        デスクワークの<b>座りっぱなし対策</b>に！別画面を開いていても、時間になったら<b>付箋と音</b>でお知らせします！<br><br>
+        健康のために<b>身体を動かそう！</b><br>
+        別画面を開いていても、時間になったら<b>付箋と音</b>でお知らせして「座りっぱなし」を防ぎます！<br><br>
         このあと画面に出るポップアップで<b>「許可」</b>を選んでスタートしてください。<br><br>
         💡 <b>初めての方は、一番下の「⚡5秒テスト」でこのサイト以外の画面でも通知が出るかをご確認ください！</b><br><br>
         <small style="color:#A0B0A5;">※出ない場合は、PC設定の「通知オフ」「集中モード」や、スリープ状態になっていないかご確認ください。</small>
@@ -142,12 +143,12 @@
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
-    <img id="charaImg" src="chara-focus.png" alt="うごこ。キャラクター" class="chara-img">
-    <div id="statusBadge" class="status-badge">集中タイム（Focus）</div>
+    <img id="charaImg" src="chara-focus.png" alt="座りっぱなし対策タイマー「うごこ。」のキャラクター" class="chara-img">
+    <div id="statusBadge" class="status-badge">作業タイム（Focus）</div>
     <div class="timer-display" id="timerDisplay">30:00</div>
 
     <div class="setting-group">
-      <span class="setting-label">集中時間（Focus）</span>
+      <span class="setting-label">作業時間（Focus）</span>
       <div class="options-grid">
         <button class="opt-btn" onclick="setFocusTime(25, this)">25分</button>
         <button class="opt-btn active" onclick="setFocusTime(30, this)">30分</button>
@@ -339,7 +340,7 @@
 
       if (mode === 'focus') {
         img.src = 'chara-focus.png';
-        badge.innerText = '集中タイム（Focus）';
+        badge.innerText = '作業タイム（Focus）';
         badge.style.background = '#E6F0E6';
         badge.style.color = '#68A865';
         timeLeft = focusMinutes * 60;
@@ -416,16 +417,16 @@
         if (mode === 'focus') {
           sendNotification(
             "🚶‍♂️ そろそろ、うごこ！",
-            focusMinutes + "分経ちました！",
+            focusMinutes + "分経ちました！身体を動かそう！",
             "🚶‍♂️",
             "動くタイム"
           );
         } else {
           sendNotification(
             "💻 おつかれさまでした！",
-            "休憩終了です！",
+            "リフレッシュ完了！作業に戻ろう！",
             "💻",
-            "集中タイム"
+            "作業タイム"
           );
         }
       } else {
