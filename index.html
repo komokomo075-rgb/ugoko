@@ -17,12 +17,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 12px; }
     
-    /* スマホ画面に合わせて可変するよう調整 */
     .container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 24px; padding: 24px 18px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; position: relative; }
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
 
-    /* 今日の合計座り時間表示 */
     .today-summary {
       background: #E8EFE9;
       border-radius: 12px;
@@ -34,29 +32,26 @@
     }
     .today-time { font-size: 18px; color: var(--accent-green); font-weight: 700; }
 
-    /* 画面内ポップアップ（スマホ画面下部に大きく表示） */
+    /* ★画面内ポップアップ：画面の「右下」に出るように修正 */
     .sticky-toast {
       position: fixed;
-      bottom: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 360px;
-      background: #FFFFFF;
-      border-left: 6px solid var(--accent-green);
-      border-radius: 12px;
+      bottom: -250px;
+      right: 20px;
+      width: 320px;
+      max-width: calc(100vw - 40px);
+      background: #1F1F1F; /* OS通知風のダーク背景 */
+      color: #FFFFFF;
+      border-radius: 8px;
       padding: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: bottom 0.3s ease-out;
       z-index: 9999;
       text-align: left;
       cursor: pointer;
     }
     .sticky-toast.show { bottom: 20px; }
-    .toast-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-    .toast-body { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
-    
-    .big-emoji-btn { display: inline-block; font-size: 24px; vertical-align: middle; margin: 0 2px; }
+    .toast-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #FFF; }
+    .toast-body { font-size: 13px; color: #D0D0D0; line-height: 1.5; white-space: pre-wrap; }
 
     .chara-img { max-width: 100px; max-height: 100px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 8px auto; }
     .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 4px; }
@@ -76,9 +71,9 @@
 </head>
 <body>
 
-  <!-- スマホ用画面内ポップアップ -->
+  <!-- 右下に表示されるサイト内ポップアップ -->
   <div id="stickyToast" class="sticky-toast" onclick="handleToastClick()">
-    <div class="toast-title" id="toastTitle">🚶‍♂️ そろそろ、うごこ！</div>
+    <div class="toast-title" id="toastTitle"></div>
     <div class="toast-body" id="toastBody"></div>
   </div>
 
@@ -86,7 +81,6 @@
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
-    <!-- 今日の座り時間表示機能 -->
     <div class="today-summary">
       今日の座り時間: <span id="todayTimeDisplay" class="today-time">0分</span>
     </div>
@@ -224,13 +218,9 @@
       } catch(e) {}
     }
 
-    function showStickyToast(title, mainMessage, emoji, nextModeName) {
+    function showStickyToast(title, bodyText) {
       document.getElementById('toastTitle').innerText = title;
-      
-      var toastBodyHTML = mainMessage + '<br>' +
-        'タップして<span class="big-emoji-btn">' + emoji + '</span>『' + nextModeName + '』をはじめよう！';
-        
-      document.getElementById('toastBody').innerHTML = toastBodyHTML;
+      document.getElementById('toastBody').innerText = bodyText;
       document.getElementById('stickyToast').classList.add('show');
     }
 
@@ -270,18 +260,22 @@
       }
     }
 
+    /* ★通知処理：付箋もデスクトップ通知も同一文章で右下に表示 */
     function sendNotification(title, mainMessage, emoji, nextModeName) {
       try { playAudio(); } catch(e) {}
       startBlinkingTitle("🔔 " + title);
       
-      showStickyToast(title, mainMessage, emoji, nextModeName);
+      // 文章の生成を1つに統合
+      var bodyText = mainMessage + "\n" +
+        "この絵文字をクリック→" + emoji + "で『" + nextModeName + "』を始めよう！\n※「×(閉じる)」は押さないでね";
 
+      // ① 画面内付箋（右下に表示）
+      showStickyToast(title, bodyText);
+
+      // ② OS通知（非表示時のみ、右下に表示）
       if (document.hidden && "Notification" in window && Notification.permission === "granted") {
         try {
-          var notificationText = mainMessage + "\n" +
-            "タップして『" + nextModeName + "』をスタート！";
-
-          activeNotification = new Notification(title, { body: notificationText, requireInteraction: true });
+          activeNotification = new Notification(title, { body: bodyText, requireInteraction: true });
           
           activeNotification.onclick = function() {
             window.focus();
