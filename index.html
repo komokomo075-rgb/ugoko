@@ -1,27 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <!-- Search Console所有権確認タグ -->
-  <meta name="google-site-verification" content="LLX9dL5JQ01BfgqitVwYKJPprBNOxUUzs0bN3RoA5S8" />
-
-  <!-- Google Analytics (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-T97B2TJZHF"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-T97B2TJZHF');
-  </script>
-
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- ★SEO最適化タイトル -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>座りっぱなし対策タイマー「うごこ。」 | デスクワークの健康管理ツール</title>
-
-  <!-- ★検索結果用の説明文 -->
-  <meta name="description" content="デスクワークの座りっぱなし対策に！時間になると画面のすみに通知と音でお知らせする健康管理タイマー『うごこ。』。アプリ不要で今すぐ使えます。長時間の座りっぱなしを防ぎ、肩こり・腰痛・血行不良を予防。">
 
   <style>
     :root {
@@ -33,118 +15,88 @@
       --border-color: #E0E5E1;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 12px; }
     
-    .container { width: 100%; max-width: 380px; background: var(--card-bg); border-radius: 24px; padding: 28px 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; position: relative; }
+    /* スマホ画面に合わせて可変するよう調整 */
+    .container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 24px; padding: 24px 18px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; position: relative; }
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
-    .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
+    .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
 
-    /* 初めての人向け案内モーダル */
-    .guide-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(45, 53, 49, 0.95);
-      border-radius: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      color: #FFF;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
+    /* 今日の合計座り時間表示 */
+    .today-summary {
+      background: #E8EFE9;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--text-main);
+      font-weight: 600;
     }
-    .guide-overlay.active { opacity: 1; pointer-events: auto; }
-    .guide-icon { font-size: 32px; margin-bottom: 4px; }
-    .guide-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
-    .guide-desc { font-size: 12px; color: #E0E5E1; line-height: 1.6; margin-bottom: 18px; text-align: left; background: rgba(255,255,255,0.08); padding: 14px; border-radius: 12px; }
-    .guide-btn { background: var(--accent-green); color: #FFF; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%; }
+    .today-time { font-size: 18px; color: var(--accent-green); font-weight: 700; }
 
-    /* 画面内付箋ポップアップ（左のアイコンをなくしてすっきり） */
+    /* 画面内ポップアップ（スマホ画面下部に大きく表示） */
     .sticky-toast {
       position: fixed;
-      bottom: -180px;
-      right: 20px;
-      width: 320px;
+      bottom: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 360px;
       background: #FFFFFF;
       border-left: 6px solid var(--accent-green);
       border-radius: 12px;
       padding: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 9999;
       text-align: left;
       cursor: pointer;
     }
     .sticky-toast.show { bottom: 20px; }
-    .toast-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-    .toast-body { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
+    .toast-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .toast-body { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
     
-    .big-emoji-btn {
-      display: inline-block;
-      font-size: 24px;
-      vertical-align: middle;
-      margin: 0 2px;
-      animation: pulse 1.5s infinite;
-    }
+    .big-emoji-btn { display: inline-block; font-size: 24px; vertical-align: middle; margin: 0 2px; }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.25); }
-      100% { transform: scale(1); }
-    }
+    .chara-img { max-width: 100px; max-height: 100px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 8px auto; }
+    .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 4px; }
+    .timer-display { font-size: 58px; font-weight: 500; letter-spacing: 1px; margin: 0 0 12px; color: var(--text-main); }
 
-    .chara-img { max-width: 110px; max-height: 110px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 12px auto; }
-    .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 8px; }
-    .timer-display { font-size: 56px; font-weight: 500; letter-spacing: 1px; margin: 4px 0 16px; color: var(--text-main); }
-
-    .setting-group { margin-bottom: 14px; text-align: left; }
-    .setting-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; display: block; }
+    .setting-group { margin-bottom: 12px; text-align: left; }
+    .setting-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; font-weight: 600; }
     .options-grid { display: flex; gap: 6px; }
-    .opt-btn { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 0; font-size: 12px; color: var(--text-main); cursor: pointer; }
-    .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 600; }
+    .opt-btn { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 0; font-size: 13px; color: var(--text-main); cursor: pointer; }
+    .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 700; }
     
-    .start-btn { width: 100%; background: var(--accent-green); color: #FFF; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
-    .test-area { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
+    .start-btn { width: 100%; background: var(--accent-green); color: #FFF; border: none; border-radius: 14px; padding: 16px; font-size: 18px; font-weight: 700; letter-spacing: 2px; cursor: pointer; margin-top: 6px; }
+    .test-area { margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
     .test-note { font-size: 11px; color: var(--text-sub); line-height: 1.4; }
     .test-btn { background: transparent; border: none; color: var(--accent-green); font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
 
-  <!-- 画面内付箋ポップアップ（左のアイコン削除） -->
+  <!-- スマホ用画面内ポップアップ -->
   <div id="stickyToast" class="sticky-toast" onclick="handleToastClick()">
     <div class="toast-title" id="toastTitle">🚶‍♂️ そろそろ、うごこ！</div>
     <div class="toast-body" id="toastBody"></div>
   </div>
 
   <div class="container">
-    <!-- サイトを開いた瞬間にでる全般案内モーダル -->
-    <div id="guideOverlay" class="guide-overlay active">
-      <div class="guide-icon">🔔</div>
-      <div class="guide-title">はじめる前のご確認</div>
-      <div class="guide-desc">
-        健康のために<b>身体を動かそう！</b><br>
-        時間になったら<b>画面と音</b>でお知らせして「座りっぱなし」を防ぎます！<br><br>
-        このあと画面に出る通知を<b>「許可」</b>してスタートしてください。<br>
-        <small style="color:#A0B0A5;">※出ない場合は、PC設定の「通知オフ」「集中モード」や、スリープ状態になっていないかご確認ください。</small><br><br>
-        📱 <b>スマホでご利用の方へ：</b><br>
-        PC版のため、スマホの別アプリを開くと通知が届かない場合があります。ブラウザを開いたままにしていただくか、PCでのご使用をおすすめします。
-      </div>
-      <button class="guide-btn" onclick="allowNotification()">確認してはじめる</button>
+    <div class="brand-title">うごこ。</div>
+    <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
+
+    <!-- 今日の座り時間表示機能 -->
+    <div class="today-summary">
+      今日の座り時間: <span id="todayTimeDisplay" class="today-time">0分</span>
     </div>
 
-    <div class="brand-title">うごこ。</div>
-    <div class="brand-concept">PCデスクワークの座りっぱなしを、ちょっと減らそう。</div>
-
-    <img id="charaImg" src="chara-focus.png" alt="座りっぱなし対策タイマー「うごこ。」のキャラクター" class="chara-img">
-    <div id="statusBadge" class="status-badge">作業タイム（Focus）</div>
+    <img id="charaImg" src="chara-focus.png" alt="うごこ。" class="chara-img">
+    <div id="statusBadge" class="status-badge">作業タイム</div>
     <div class="timer-display" id="timerDisplay">30:00</div>
 
     <div class="setting-group">
-      <span class="setting-label">作業時間（Focus）</span>
+      <span class="setting-label">作業時間</span>
       <div class="options-grid">
         <button class="opt-btn" onclick="setFocusTime(25, this)">25分</button>
         <button class="opt-btn active" onclick="setFocusTime(30, this)">30分</button>
@@ -154,7 +106,7 @@
     </div>
 
     <div class="setting-group">
-      <span class="setting-label">動く時間（Move）</span>
+      <span class="setting-label">うごく時間</span>
       <div class="options-grid">
         <button class="opt-btn" onclick="setMoveTime(1, this)">1分</button>
         <button class="opt-btn active" onclick="setMoveTime(2, this)">2分</button>
@@ -167,7 +119,7 @@
     
     <div class="test-area">
       <button class="test-btn" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
-      <div class="test-note" style="margin-top: 4px;">↑ 初めての方は別画面でも通知が出るかテスト確認できます</div>
+      <div class="test-note" style="margin-top: 4px;">↑ テスト確認用ボタンです</div>
     </div>
   </div>
 
@@ -177,6 +129,7 @@
     var blinkInterval = null;
     var audioCtx = null;
     var activeNotification = null;
+    var todayFocusSeconds = 0;
 
     var workerCode = `
       let timer = null;
@@ -196,6 +149,37 @@
       if (isRunning) checkTimer();
     };
 
+    window.onload = function() {
+      loadTodayData();
+      updateDisplay();
+    };
+
+    function loadTodayData() {
+      var todayKey = new Date().toISOString().slice(0, 10);
+      var savedDate = localStorage.getItem('ugoko_last_date');
+      
+      if (savedDate !== todayKey) {
+        localStorage.setItem('ugoko_last_date', todayKey);
+        localStorage.setItem('ugoko_today_seconds', 0);
+        todayFocusSeconds = 0;
+      } else {
+        todayFocusSeconds = parseInt(localStorage.getItem('ugoko_today_seconds') || 0, 10);
+      }
+      renderTodayTime();
+    }
+
+    function renderTodayTime() {
+      var totalMinutes = Math.floor(todayFocusSeconds / 60);
+      var h = Math.floor(totalMinutes / 60);
+      var m = totalMinutes % 60;
+      
+      var text = "";
+      if (h > 0) text += h + "時間 ";
+      text += m + "分";
+
+      document.getElementById('todayTimeDisplay').innerText = text;
+    }
+
     function initAudio() {
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -208,14 +192,6 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.001);
       } catch(e) {}
-    }
-
-    function allowNotification() {
-      initAudio();
-      document.getElementById('guideOverlay').classList.remove('active');
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
     }
 
     function handleStartClick() {
@@ -252,8 +228,7 @@
       document.getElementById('toastTitle').innerText = title;
       
       var toastBodyHTML = mainMessage + '<br>' +
-        'この絵文字をクリック→<span class="big-emoji-btn">' + emoji + '</span>で『' + nextModeName + '』を始めよう！<br>' +
-        '<small style="color:#E74C3C; font-size: 10px;">※「×(閉じる)」は押さないでね</small>';
+        'タップして<span class="big-emoji-btn">' + emoji + '</span>『' + nextModeName + '』をはじめよう！';
         
       document.getElementById('toastBody').innerHTML = toastBodyHTML;
       document.getElementById('stickyToast').classList.add('show');
@@ -296,18 +271,15 @@
     }
 
     function sendNotification(title, mainMessage, emoji, nextModeName) {
-      playAudio();
+      try { playAudio(); } catch(e) {}
       startBlinkingTitle("🔔 " + title);
       
-      // 画面内にポップアップ表示
       showStickyToast(title, mainMessage, emoji, nextModeName);
 
-      // タブや画面が非表示（裏側）の時だけ、PCデスクトップ通知を出す
       if (document.hidden && "Notification" in window && Notification.permission === "granted") {
         try {
           var notificationText = mainMessage + "\n" +
-            "この絵文字をクリック→" + emoji + "で『" + nextModeName + "』に戻ろう！\n" +
-            "※「×(閉じる)」は押さないでね";
+            "タップして『" + nextModeName + "』をスタート！";
 
           activeNotification = new Notification(title, { body: notificationText, requireInteraction: true });
           
@@ -342,13 +314,13 @@
 
       if (mode === 'focus') {
         img.src = 'chara-focus.png';
-        badge.innerText = '作業タイム（Focus）';
+        badge.innerText = '作業タイム';
         badge.style.background = '#E6F0E6';
         badge.style.color = '#68A865';
         timeLeft = focusMinutes * 60;
       } else {
         img.src = 'chara-move.png';
-        badge.innerText = '動くタイム（Move）';
+        badge.innerText = 'うごくタイム';
         badge.style.background = '#FFF3E0';
         badge.style.color = '#E67E22';
         timeLeft = moveMinutes * 60;
@@ -417,16 +389,20 @@
         updateDisplay();
         
         if (mode === 'focus') {
+          todayFocusSeconds += focusMinutes * 60;
+          localStorage.setItem('ugoko_today_seconds', todayFocusSeconds);
+          renderTodayTime();
+
           sendNotification(
             "🚶‍♂️ そろそろ、うごこ！",
-            focusMinutes + "分経ちました！身体を動かそう！",
+            focusMinutes + "分経ちました！身体をほぐしましょう！",
             "🚶‍♂️",
-            "動くタイム"
+            "うごくタイム"
           );
         } else {
           sendNotification(
             "💻 おつかれさまでした！",
-            "リフレッシュ完了！作業に戻ろう！",
+            "リフレッシュ完了！作業に戻りましょう！",
             "💻",
             "作業タイム"
           );
