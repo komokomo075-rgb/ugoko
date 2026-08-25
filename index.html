@@ -9,7 +9,7 @@
   <style>
     :root {
       --bg-color: #F2F4F2;
-      --card-bg: #FAFAD6;
+      --card-bg: #FFFFFF;
       --text-main: #2D3531;
       --text-sub: #78887F;
       --accent-green: #68A865;
@@ -35,7 +35,7 @@
     .btn-main { flex: 2; padding: 14px; border-radius: 14px; border: none; background: var(--accent-green); color: white; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(104, 168, 101, 0.3); }
     .btn-main:active { transform: scale(0.98); }
 
-    .settings-panel { background: rgba(255, 255, 255, 0.6); border-radius: 16px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border-color); text-align: left; }
+    .settings-panel { background: #F8FAF8; border-radius: 16px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border-color); text-align: left; }
     .setting-group { margin-bottom: 8px; }
     .setting-group:last-child { margin-bottom: 0; }
     .setting-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
@@ -44,7 +44,7 @@
     .opt-btn { flex: 1; padding: 8px 4px; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-main); font-size: 12px; font-weight: 600; cursor: pointer; }
     .opt-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
 
-    .today-summary { background: rgba(255, 255, 255, 0.6); border-radius: 16px; padding: 10px 14px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .today-summary { background: #F8FAF8; border-radius: 16px; padding: 10px 14px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
     .summary-item { text-align: center; flex: 1; }
     .summary-title { font-size: 10px; color: var(--text-sub); font-weight: 700; }
     .summary-value { font-size: 14px; font-weight: 700; color: var(--text-main); margin-top: 2px; }
@@ -338,9 +338,13 @@
         "ここをクリック 👉 <span class='bonbon-emoji'>" + emoji + "</span> 👈 で『" + nextModeName + "』を始めよう！<br>" +
         "<span style='font-size: 11px; color: #aaa;'>※「×(閉じる)」は押さないでね</span>";
 
-      showStickyToast(title, htmlText);
+      // 画面が見えている（アクティブな）時だけ画面内付箋（トースト）を表示
+      if (document.visibilityState === 'visible') {
+        showStickyToast(title, htmlText);
+      }
 
-      if (Notification.permission === "granted") {
+      // 画面非表示（別タブ・別アプリ）の時だけデスクトップ通知を出す
+      if (document.visibilityState !== 'visible' && Notification.permission === "granted") {
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
             type: 'SHOW_NOTIFICATION',
