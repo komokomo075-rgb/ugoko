@@ -7,13 +7,12 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// バックグラウンド通知を受信して表示
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
     const title = event.data.title;
     const options = {
       body: event.data.body,
-      icon: 'chara-focus.png', // 通知用のアイコン
+      icon: 'chara-focus.png',
       badge: 'chara-focus.png',
       vibrate: [300, 100, 300, 100, 300],
       tag: 'ugoko-notification',
@@ -29,13 +28,14 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// 通知をタップしたときにアプリ画面をアクティブにする
+// 通知をクリックしたときにアプリを開き、自動スタート信号を送る
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if ('focus' in client) {
+          client.postMessage({ action: 'NOTIFICATION_CLICKED' });
           return client.focus();
         }
       }
