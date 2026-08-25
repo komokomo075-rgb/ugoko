@@ -1,4 +1,131 @@
-<script>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>座りっぱなし対策タイマー「うごこ。」 | デスクワークの健康管理ツール</title>
+  <link rel="manifest" href="/manifest.json">
+
+  <style>
+    :root {
+      --bg-color: #F2F4F2;
+      --card-bg: #FAFAD6;
+      --text-main: #2D3531;
+      --text-sub: #78887F;
+      --accent-green: #68A865;
+      --accent-orange: #E67E22;
+      --border-color: #E0E5E1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 12px; }
+
+    .container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 24px; padding: 24px 18px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; }
+    .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+    .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
+
+    .chara-box { width: 100%; height: 170px; display: flex; justify-content: center; align-items: center; margin-bottom: 6px; }
+    .chara-box img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 6px; background: #E8F8EC; color: #34C759; }
+
+    .timer-display { font-size: 54px; font-weight: 800; font-family: monospace; letter-spacing: -1px; margin-bottom: 12px; }
+
+    .controls-grid { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-main { flex: 2; padding: 14px; border-radius: 14px; border: none; background: var(--accent-green); color: white; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(104, 168, 101, 0.3); }
+    .btn-main:active { transform: scale(0.98); }
+
+    .settings-panel { background: rgba(255, 255, 255, 0.6); border-radius: 16px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border-color); text-align: left; }
+    .setting-group { margin-bottom: 8px; }
+    .setting-group:last-child { margin-bottom: 0; }
+    .setting-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
+    .btn-group { display: flex; gap: 6px; }
+    
+    .opt-btn { flex: 1; padding: 8px 4px; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-main); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .opt-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+
+    .today-summary { background: rgba(255, 255, 255, 0.6); border-radius: 16px; padding: 10px 14px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .summary-item { text-align: center; flex: 1; }
+    .summary-title { font-size: 10px; color: var(--text-sub); font-weight: 700; }
+    .summary-value { font-size: 14px; font-weight: 700; color: var(--text-main); margin-top: 2px; }
+
+    .btn-test { width: 100%; padding: 8px; border-radius: 10px; border: 1px dashed #B0BEC5; background: transparent; color: #78909C; font-size: 11px; font-weight: 600; cursor: pointer; }
+
+    .sticky-toast { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 360px; background: #ffffff; border: 2px solid var(--accent-orange); border-radius: 16px; padding: 14px 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 9999; cursor: pointer; text-align: left; }
+    .sticky-toast.show { display: block; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popUp { from { transform: translate(-50%, 40px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    .toast-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .toast-title { font-weight: 700; font-size: 14px; color: var(--accent-orange); }
+    .toast-close { background: none; border: none; font-size: 16px; color: #999; cursor: pointer; padding: 0 4px; }
+    .toast-body { font-size: 13px; color: var(--text-main); line-height: 1.4; }
+    .bonbon-emoji { display: inline-block; font-size: 20px; animation: bonbon 0.6s infinite alternate ease-in-out; vertical-align: middle; margin: 0 4px; }
+    @keyframes bonbon { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.3) translateY(-4px); } }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="brand-title">うごこ。</div>
+    <div class="brand-concept">座りっぱなしを防ぐ、デスクワーク相棒タイマー</div>
+
+    <div class="chara-box">
+      <img id="charaImg" src="chara-focus.png" alt="キャラクター">
+    </div>
+
+    <div id="statusBadge" class="status-badge">作業タイム</div>
+    <div id="timerDisplay" class="timer-display">30:00</div>
+
+    <div class="controls-grid">
+      <button id="startBtn" class="btn-main" onclick="handleStartClick()">スタート</button>
+    </div>
+
+    <div class="settings-panel">
+      <div class="setting-group">
+        <div class="setting-label">作業時間</div>
+        <div class="btn-group" id="focusGroup">
+          <button class="opt-btn" data-val="25" onclick="setFocusTime(25, this)">25分</button>
+          <button class="opt-btn active" data-val="30" onclick="setFocusTime(30, this)">30分</button>
+          <button class="opt-btn" data-val="45" onclick="setFocusTime(45, this)">45分</button>
+          <button class="opt-btn" data-val="50" onclick="setFocusTime(50, this)">50分</button>
+          <button class="opt-btn" data-val="60" onclick="setFocusTime(60, this)">60分</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">うごく時間（休憩）</div>
+        <div class="btn-group" id="moveGroup">
+          <button class="opt-btn active" data-val="2" onclick="setMoveTime(2, this)">2分</button>
+          <button class="opt-btn" data-val="3" onclick="setMoveTime(3, this)">3分</button>
+          <button class="opt-btn" data-val="5" onclick="setMoveTime(5, this)">5分</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="today-summary">
+      <div class="summary-item">
+        <div class="summary-title">今日の集中時間</div>
+        <div id="todayTimeDisplay" class="summary-value">0分</div>
+      </div>
+      <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+      <div class="summary-item">
+        <div class="summary-title">今日動いた回数</div>
+        <div id="todayMoveDisplay" class="summary-value">0回 (0分)</div>
+      </div>
+    </div>
+
+    <button class="btn-test" onclick="testTimer(5)">⚡ 5秒テスト（動作確認用）</button>
+  </div>
+
+  <div id="stickyToast" class="sticky-toast" onclick="handleToastClick()">
+    <div class="toast-header">
+      <span id="toastTitle" class="toast-title">🔔 時間です！</span>
+      <button class="toast-close" onclick="event.stopPropagation(); closeToast();">×</button>
+    </div>
+    <div id="toastBody" class="toast-body">
+      画面をクリックして次のモードを開始！
+    </div>
+  </div>
+
+  <script>
     var focusMinutes = 30, moveMinutes = 2, timeLeft = focusMinutes * 60, isRunning = false, endTime = 0;
     var mode = "focus";
     var blinkInterval = null;
@@ -10,18 +137,7 @@
     var todayMoveCount = 0;
     var todayMoveSeconds = 0;
 
-    // Web Worker (タイマー精度の維持)
-    var workerCode = `
-      let timer = null;
-      onmessage = function(e) {
-        if (e.data === 'start') {
-          if (timer) clearInterval(timer);
-          timer = setInterval(() => postMessage('tick'), 250);
-        } else if (e.data === 'stop') {
-          if (timer) { clearInterval(timer); timer = null; }
-        }
-      };
-    `;
+    var workerCode = "let timer = null; onmessage = function(e) { if (e.data === 'start') { if (timer) clearInterval(timer); timer = setInterval(() => postMessage('tick'), 250); } else if (e.data === 'stop') { if (timer) { clearInterval(timer); timer = null; } } };";
     var workerBlob = new Blob([workerCode], { type: 'application/javascript' });
     var worker = new Worker(URL.createObjectURL(workerBlob));
 
@@ -29,7 +145,6 @@
       if (isRunning) checkTimer();
     };
 
-    // 初期化処理
     window.onload = function() {
       registerServiceWorker();
       loadSavedSettings();
@@ -37,16 +152,12 @@
       updateDisplay();
     };
 
-    // Service Workerの登録＆通知タップ時のメッセージ受け取り
     function registerServiceWorker() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').then(function(reg) {
           swRegistration = reg;
-        }).catch(function(err) {
-          console.log('SW登録失敗:', err);
-        });
+        }).catch(function(err) {});
 
-        // Service Workerからの通知タップ通知を受け取って自動スタート
         navigator.serviceWorker.addEventListener('message', function(event) {
           if (event.data && event.data.action === 'NOTIFICATION_CLICKED') {
             handleToastClick();
@@ -55,7 +166,6 @@
       }
     }
 
-    // 前回設定の読み込み
     function loadSavedSettings() {
       var savedFocus = localStorage.getItem('ugoko_saved_focus');
       var savedMove = localStorage.getItem('ugoko_saved_move');
@@ -186,7 +296,6 @@
       }
     }
 
-    // ★ 通知クリック時に即時で次のタイマーを自動スタートさせる処理
     function handleToastClick() {
       closeToast();
       stopBlinkingTitle();
@@ -197,7 +306,6 @@
         switchMode('focus');
       }
       
-      // 自動でカウントダウンを開始
       if (!isRunning) {
         startTimer();
       }
@@ -331,7 +439,6 @@
       }
     }
 
-    // ★ タイマー開始処理の確実化
     function startTimer() {
       isRunning = true;
       document.getElementById('startBtn').innerText = '一時停止';
@@ -381,3 +488,5 @@
       }
     }
   </script>
+</body>
+</html>
