@@ -96,6 +96,7 @@
           <button class="opt-btn active" data-val="2" onclick="setMoveTime(2, this)">2分</button>
           <button class="opt-btn" data-val="3" onclick="setMoveTime(3, this)">3分</button>
           <button class="opt-btn" data-val="5" onclick="setMoveTime(5, this)">5分</button>
+          <button class="opt-btn" data-val="10" onclick="setMoveTime(10, this)">10分</button>
         </div>
       </div>
     </div>
@@ -338,12 +339,10 @@
         "ここをクリック 👉 <span class='bonbon-emoji'>" + emoji + "</span> 👈 で『" + nextModeName + "』を始めよう！<br>" +
         "<span style='font-size: 11px; color: #aaa;'>※「×(閉じる)」は押さないでね</span>";
 
-      // 画面が見えている（アクティブな）時だけ画面内付箋（トースト）を表示
       if (document.visibilityState === 'visible') {
         showStickyToast(title, htmlText);
       }
 
-      // 画面非表示（別タブ・別アプリ）の時だけデスクトップ通知を出す
       if (document.visibilityState !== 'visible' && Notification.permission === "granted") {
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
