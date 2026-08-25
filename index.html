@@ -8,37 +8,52 @@
 
   <style>
     :root {
-      --bg-color: #F2F4F2;
-      --card-bg: #FAFCFA;
-      --text-main: #2D3531;
-      --text-sub: #78887F;
-      --accent-green: #68A865;
-      --accent-orange: #E67E22;
-      --border-color: #E0E5E1;
+      --bg-color: #F2F4F7;
+      --card-bg: #FFFFFF;
+      --text-main: #1C1C1E;
+      --text-sub: #8E8E93;
+      --accent-green: #34C759;
+      --accent-green-dark: #2da14f;
+      --accent-orange: #FF9500;
+      --btn-inactive-bg: #E5E5EA;
+      --btn-inactive-text: #3A3A3C;
+      --border-color: rgba(60, 60, 67, 0.08);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 12px; }
-    
-    .container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 24px; padding: 24px 18px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; position: relative; }
-    .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
-    .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
+
+    /* Apple風カードデザイン */
+    .container {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border-radius: 32px;
+      padding: 28px 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--border-color);
+      text-align: center;
+      position: relative;
+    }
+    .brand-title { font-size: 30px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.5px; }
+    .brand-concept { font-size: 13px; color: var(--text-sub); margin-bottom: 16px; font-weight: 400; }
 
     /* 今日の実績サマリー */
     .today-summary {
-      background: #E8EFE9;
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-bottom: 14px;
+      background: #F8F9FA;
+      border-radius: 20px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
       font-size: 13px;
       color: var(--text-main);
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
+      border: 1px solid rgba(0,0,0,0.03);
     }
     .summary-row { display: flex; justify-content: space-between; align-items: center; }
-    .summary-label { font-weight: 600; color: var(--text-sub); font-size: 12px; }
-    .today-time { font-size: 16px; color: var(--accent-green); font-weight: 700; }
-    .today-move { font-size: 16px; color: var(--accent-orange); font-weight: 700; }
+    .summary-label { font-weight: 500; color: var(--text-sub); font-size: 13px; }
+    .today-time { font-size: 15px; color: var(--accent-green); font-weight: 700; }
+    .today-move { font-size: 15px; color: var(--accent-orange); font-weight: 700; }
 
     @keyframes bonbon {
       0%   { transform: scale(1); }
@@ -64,32 +79,73 @@
       right: 20px;
       width: 320px;
       max-width: calc(100vw - 40px);
-      background: #1F1F1F;
+      background: #1C1C1E;
       color: #FFFFFF;
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
       transition: bottom 0.3s ease-out;
       z-index: 9999;
       text-align: left;
       cursor: pointer;
     }
     .sticky-toast.show { bottom: 20px; }
-    .toast-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #FFF; }
-    .toast-body { font-size: 13px; color: #D0D0D0; line-height: 1.6; }
+    .toast-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #FFF; }
+    .toast-body { font-size: 13px; color: #E5E5EA; line-height: 1.6; }
 
-    .chara-img { max-width: 100px; max-height: 100px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 8px auto; }
-    .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; background: #E6F0E6; color: var(--accent-green); margin-bottom: 4px; }
-    .timer-display { font-size: 58px; font-weight: 500; letter-spacing: 1px; margin: 0 0 12px; color: var(--text-main); }
+    .chara-img { max-width: 90px; max-height: 90px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto 10px auto; }
+    .status-badge { display: inline-block; padding: 6px 18px; border-radius: 9999px; font-size: 13px; font-weight: 600; background: #E8F8EC; color: var(--accent-green); margin-bottom: 8px; }
+    .timer-display { font-size: 64px; font-weight: 200; letter-spacing: -1.5px; margin: 0 0 16px; color: var(--text-main); font-variant-numeric: tabular-nums; }
 
-    .setting-group { margin-bottom: 12px; text-align: left; }
-    .setting-label { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; font-weight: 600; }
-    .options-grid { display: flex; gap: 6px; }
-    .opt-btn { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 0; font-size: 13px; color: var(--text-main); cursor: pointer; }
-    .opt-btn.active { background: var(--accent-green); color: #FFF; border-color: var(--accent-green); font-weight: 700; }
+    .setting-group { margin-bottom: 16px; text-align: left; }
+    .setting-label { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; display: block; font-weight: 600; padding-left: 4px; }
+    .options-grid { display: flex; gap: 8px; }
     
-    .start-btn { width: 100%; background: var(--accent-green); color: #FFF; border: none; border-radius: 14px; padding: 16px; font-size: 18px; font-weight: 700; letter-spacing: 2px; cursor: pointer; margin-top: 6px; }
-    .test-area { margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+    /* Apple風カプセル型ボタン */
+    .opt-btn {
+      flex: 1;
+      background: var(--btn-inactive-bg);
+      border: none;
+      border-radius: 9999px; /* 完全なカプセル型 */
+      padding: 10px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--btn-inactive-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .opt-btn.active {
+      background: var(--accent-green);
+      color: #FFF;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+    }
+    .opt-btn:active {
+      transform: scale(0.96);
+    }
+    
+    /* メインのスタートボタン */
+    .start-btn {
+      width: 100%;
+      background: var(--accent-green);
+      color: #FFF;
+      border: none;
+      border-radius: 9999px; /* カプセル型 */
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(52, 199, 89, 0.35);
+    }
+    .start-btn:active {
+      background: var(--accent-green-dark);
+      transform: scale(0.98);
+    }
+
+    .test-area { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-color); }
     .test-note { font-size: 11px; color: var(--text-sub); line-height: 1.4; }
     .test-btn { background: transparent; border: none; color: var(--accent-green); font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; }
   </style>
@@ -111,7 +167,7 @@
         <span class="summary-label">💻 今日の座り時間</span>
         <span id="todayTimeDisplay" class="today-time">0分</span>
       </div>
-      <div class="summary-row" style="border-top: 1px dashed #CDD7CF; padding-top: 4px; margin-top: 2px;">
+      <div class="summary-row" style="border-top: 1px dashed #E5E5EA; padding-top: 6px; margin-top: 2px;">
         <span class="summary-label">🏃‍♂️ 今日のうごき実績</span>
         <span id="todayMoveDisplay" class="today-move">0回 (0分)</span>
       </div>
@@ -123,21 +179,21 @@
 
     <div class="setting-group">
       <span class="setting-label">作業時間</span>
-      <div class="options-grid">
-        <button class="opt-btn" onclick="setFocusTime(25, this)">25分</button>
-        <button class="opt-btn active" onclick="setFocusTime(30, this)">30分</button>
-        <button class="opt-btn" onclick="setFocusTime(45, this)">45分</button>
-        <button class="opt-btn" onclick="setFocusTime(50, this)">50分</button>
+      <div class="options-grid" id="focusGroup">
+        <button class="opt-btn" data-val="25" onclick="setFocusTime(25, this)">25分</button>
+        <button class="opt-btn" data-val="30" onclick="setFocusTime(30, this)">30分</button>
+        <button class="opt-btn" data-val="45" onclick="setFocusTime(45, this)">45分</button>
+        <button class="opt-btn" data-val="50" onclick="setFocusTime(50, this)">50分</button>
       </div>
     </div>
 
     <div class="setting-group">
       <span class="setting-label">うごく時間</span>
-      <div class="options-grid">
-        <button class="opt-btn" onclick="setMoveTime(1, this)">1分</button>
-        <button class="opt-btn active" onclick="setMoveTime(2, this)">2分</button>
-        <button class="opt-btn" onclick="setMoveTime(3, this)">3分</button>
-        <button class="opt-btn" onclick="setMoveTime(5, this)">5分</button>
+      <div class="options-grid" id="moveGroup">
+        <button class="opt-btn" data-val="1" onclick="setMoveTime(1, this)">1分</button>
+        <button class="opt-btn" data-val="2" onclick="setMoveTime(2, this)">2分</button>
+        <button class="opt-btn" data-val="3" onclick="setMoveTime(3, this)">3分</button>
+        <button class="opt-btn" data-val="5" onclick="setMoveTime(5, this)">5分</button>
       </div>
     </div>
 
@@ -155,11 +211,13 @@
     var blinkInterval = null;
     var audioCtx = null;
     var activeNotification = null;
+    var swRegistration = null;
     
     var todayFocusSeconds = 0;
     var todayMoveCount = 0;
     var todayMoveSeconds = 0;
 
+    // Web Worker (タイマー精度の維持)
     var workerCode = `
       let timer = null;
       onmessage = function(e) {
@@ -178,10 +236,56 @@
       if (isRunning) checkTimer();
     };
 
+    // 初期化処理
     window.onload = function() {
+      registerServiceWorker();
+      loadSavedSettings(); // 前回設定の読み込み
       loadTodayData();
       updateDisplay();
     };
+
+    // Service Workerの登録
+    function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(function(reg) {
+          swRegistration = reg;
+        }).catch(function(err) {
+          console.log('SW登録失敗:', err);
+        });
+      }
+    }
+
+    // 前回設定（ローカルストレージ）の読み込み・適用
+    function loadSavedSettings() {
+      var savedFocus = localStorage.getItem('ugoko_saved_focus');
+      var savedMove = localStorage.getItem('ugoko_saved_move');
+
+      if (savedFocus) {
+        focusMinutes = parseInt(savedFocus, 10);
+      }
+      if (savedMove) {
+        moveMinutes = parseInt(savedMove, 10);
+      }
+
+      // UIに反映
+      applyActiveButton('focusGroup', focusMinutes);
+      applyActiveButton('moveGroup', moveMinutes);
+
+      timeLeft = (mode === 'focus' ? focusMinutes : moveMinutes) * 60;
+    }
+
+    function applyActiveButton(groupId, val) {
+      var group = document.getElementById(groupId);
+      if (!group) return;
+      var btns = group.getElementsByTagName('button');
+      for (var i = 0; i < btns.length; i++) {
+        if (parseInt(btns[i].getAttribute('data-val'), 10) === val) {
+          btns[i].className = 'opt-btn active';
+        } else {
+          btns[i].className = 'opt-btn';
+        }
+      }
+    }
 
     function padZero(n) { return n < 10 ? '0' + n : '' + n; }
 
@@ -315,13 +419,13 @@
       }
     }
 
+    // 画面オフ対応の背景通知処理
     function sendNotification(title, mainMessage, emoji, nextModeName) {
       try { playAudio(); } catch(e) {}
       startBlinkingTitle("🔔 " + title);
       
       var plainText = mainMessage + "\n" +
-        "ここをクリック 👉 【 " + emoji + " 】 👈 で『" + nextModeName + "』を始めよう！\n" +
-        "※「×(閉じる)」は押さないでね";
+        "ここをクリック 👉 【 " + emoji + " 】 👈 で『" + nextModeName + "』を始めよう！";
 
       var htmlText = mainMessage + "<br>" +
         "ここをクリック 👉 <span class='bonbon-emoji'>" + emoji + "</span> 👈 で『" + nextModeName + "』を始めよう！<br>" +
@@ -329,14 +433,23 @@
 
       showStickyToast(title, htmlText);
 
-      if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-        try {
-          activeNotification = new Notification(title, { body: plainText, requireInteraction: true });
-          activeNotification.onclick = function() {
-            window.focus();
-            handleToastClick();
-          };
-        } catch(e) {}
+      // バックグラウンド／スリープ時は Service Worker を経由して通知を発火
+      if (Notification.permission === "granted") {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SHOW_NOTIFICATION',
+            title: title,
+            body: plainText
+          });
+        } else {
+          try {
+            activeNotification = new Notification(title, { body: plainText, requireInteraction: true });
+            activeNotification.onclick = function() {
+              window.focus();
+              handleToastClick();
+            };
+          } catch(e) {}
+        }
       }
     }
 
@@ -363,14 +476,14 @@
       if (mode === 'focus') {
         img.src = 'chara-focus.png';
         badge.innerText = '作業タイム';
-        badge.style.background = '#E6F0E6';
-        badge.style.color = '#68A865';
+        badge.style.background = '#E8F8EC';
+        badge.style.color = '#34C759';
         timeLeft = focusMinutes * 60;
       } else {
         img.src = 'chara-move.png';
         badge.innerText = 'うごくタイム';
         badge.style.background = '#FFF3E0';
-        badge.style.color = '#E67E22';
+        badge.style.color = '#FF9500';
         timeLeft = moveMinutes * 60;
       }
       updateDisplay();
@@ -379,6 +492,7 @@
     function setFocusTime(m, el) {
       if (isRunning) return;
       focusMinutes = m;
+      localStorage.setItem('ugoko_saved_focus', m); // 設定を保存
       if (mode === 'focus') timeLeft = m * 60;
       updateDisplay();
       var btns = el.parentElement.getElementsByTagName('button');
@@ -389,6 +503,7 @@
     function setMoveTime(m, el) {
       if (isRunning) return;
       moveMinutes = m;
+      localStorage.setItem('ugoko_saved_move', m); // 設定を保存
       if (mode === 'move') timeLeft = m * 60;
       updateDisplay();
       var btns = el.parentElement.getElementsByTagName('button');
