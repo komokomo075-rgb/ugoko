@@ -1,4 +1,3 @@
-// sw.js (サービスワーカー)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -28,7 +27,6 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// 通知をクリックしたときにアプリを開き、自動スタート信号を送る
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
