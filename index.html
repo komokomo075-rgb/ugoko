@@ -12,6 +12,7 @@
       --text-main: #2D3531;
       --text-sub: #78887F;
       --accent-green: #68A865;
+      --accent-orange: #E67E22;
       --border-color: #E0E5E1;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
@@ -21,16 +22,22 @@
     .brand-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .brand-concept { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
 
+    /* 今日の実績サマリー */
     .today-summary {
       background: #E8EFE9;
-      border-radius: 12px;
-      padding: 8px 12px;
+      border-radius: 14px;
+      padding: 10px 12px;
       margin-bottom: 14px;
       font-size: 13px;
       color: var(--text-main);
-      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .today-time { font-size: 18px; color: var(--accent-green); font-weight: 700; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; }
+    .summary-label { font-weight: 600; color: var(--text-sub); font-size: 12px; }
+    .today-time { font-size: 16px; color: var(--accent-green); font-weight: 700; }
+    .today-move { font-size: 16px; color: var(--accent-orange); font-weight: 700; }
 
     @keyframes bonbon {
       0%   { transform: scale(1); }
@@ -97,8 +104,16 @@
     <div class="brand-title">うごこ。</div>
     <div class="brand-concept">座りっぱなしを、ちょっと減らそう。</div>
 
+    <!-- 今日の実績サマリー -->
     <div class="today-summary">
-      今日の座り時間: <span id="todayTimeDisplay" class="today-time">0分</span>
+      <div class="summary-row">
+        <span class="summary-label">💻 今日の座り時間</span>
+        <span id="todayTimeDisplay" class="today-time">0分</span>
+      </div>
+      <div class="summary-row" style="border-top: 1px dashed #CDD7CF; padding-top: 4px; margin-top: 2px;">
+        <span class="summary-label">🏃‍♂️ 今日のうごき実績</span>
+        <span id="todayMoveDisplay" class="today-move">0回 (0分)</span>
+      </div>
     </div>
 
     <img id="charaImg" src="chara-focus.png" alt="うごこ。" class="chara-img">
@@ -139,7 +154,10 @@
     var blinkInterval = null;
     var audioCtx = null;
     var activeNotification = null;
+    
     var todayFocusSeconds = 0;
+    var todayMoveCount = 0;
+    var todayMoveSeconds = 0;
 
     var workerCode = `
       let timer = null;
@@ -166,7 +184,6 @@
 
     function padZero(n) { return n < 10 ? '0' + n : '' + n; }
 
-    /* 日本時間（ローカル時間）で正確に今日の日付を取得するよう修正 */
     function getTodayKey() {
       var d = new Date();
       return d.getFullYear() + '-' + padZero(d.getMonth() + 1) + '-' + padZero(d.getDate());
@@ -179,9 +196,15 @@
       if (savedDate !== todayKey) {
         localStorage.setItem('ugoko_last_date', todayKey);
         localStorage.setItem('ugoko_today_seconds', 0);
+        localStorage.setItem('ugoko_today_move_count', 0);
+        localStorage.setItem('ugoko_today_move_seconds', 0);
         todayFocusSeconds = 0;
+        todayMoveCount = 0;
+        todayMoveSeconds = 0;
       } else {
         todayFocusSeconds = parseInt(localStorage.getItem('ugoko_today_seconds') || 0, 10);
+        todayMoveCount = parseInt(localStorage.getItem('ugoko_today_move_count') || 0, 10);
+        todayMoveSeconds = parseInt(localStorage.getItem('ugoko_today_move_seconds') || 0, 10);
       }
       renderTodayTime();
     }
@@ -190,12 +213,12 @@
       var totalMinutes = Math.floor(todayFocusSeconds / 60);
       var h = Math.floor(totalMinutes / 60);
       var m = totalMinutes % 60;
-      
-      var text = "";
-      if (h > 0) text += h + "時間 ";
-      text += m + "分";
+      var textFocus = (h > 0 ? h + "時間 " : "") + m + "分";
+      document.getElementById('todayTimeDisplay').innerText = textFocus;
 
-      document.getElementById('todayTimeDisplay').innerText = text;
+      var moveTotalM = Math.floor(todayMoveSeconds / 60);
+      var textMove = todayMoveCount + "回 (" + moveTotalM + "分)";
+      document.getElementById('todayMoveDisplay').innerText = textMove;
     }
 
     function initAudio() {
@@ -212,7 +235,6 @@
       } catch(e) {}
     }
 
-    /* 通知権限の要求を追加 */
     function requestNotificationPermission() {
       if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission();
@@ -411,8 +433,9 @@
         timeLeft = 0;
         updateDisplay();
         
+        loadTodayData();
+
         if (mode === 'focus') {
-          loadTodayData();
           todayFocusSeconds += focusMinutes * 60;
           localStorage.setItem('ugoko_today_seconds', todayFocusSeconds);
           renderTodayTime();
@@ -424,6 +447,12 @@
             "うごくタイム"
           );
         } else {
+          todayMoveCount += 1;
+          todayMoveSeconds += moveMinutes * 60;
+          localStorage.setItem('ugoko_today_move_count', todayMoveCount);
+          localStorage.setItem('ugoko_today_move_seconds', todayMoveSeconds);
+          renderTodayTime();
+
           sendNotification(
             "💻 おつかれさまでした！",
             "リフレッシュ完了！作業に戻りましょう！",
