@@ -61,32 +61,85 @@
     .bonbon-emoji { display: inline-block; font-size: 20px; animation: bonbon 0.6s infinite alternate ease-in-out; vertical-align: middle; margin: 0 4px; }
     @keyframes bonbon { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.3) translateY(-4px); } }
 
-    /* モーダル背景＆カード */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 16px; backdrop-filter: blur(2px); }
-    .modal-card { background: #3B433E; color: #FFFFFF; border-radius: 20px; padding: 24px 20px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-    .modal-icon { font-size: 40px; margin-bottom: 8px; }
-    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-    .modal-body { background: rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px; text-align: left; font-size: 13px; line-height: 1.6; color: #E0E0E0; margin-bottom: 20px; }
+    /* --- モーダル表示のレイアウト修正 --- */
+    .modal-overlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      right: 0;
+      bottom: 0;
+      width: 100vw; 
+      height: 100vh; 
+      background: rgba(0, 0, 0, 0.7); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 10000; 
+      padding: 16px; 
+      backdrop-filter: blur(4px); 
+    }
+    .modal-card { 
+      background: #3B433E; 
+      color: #FFFFFF; 
+      border-radius: 20px; 
+      padding: 24px 20px; 
+      max-width: 380px; 
+      width: 100%; 
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: center; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+    }
+    .modal-icon { font-size: 36px; margin-bottom: 6px; }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 14px; color: #FFFFFF; }
+    .modal-body { 
+      background: rgba(255, 255, 255, 0.08); 
+      border-radius: 12px; 
+      padding: 14px 16px; 
+      text-align: left; 
+      font-size: 13px; 
+      line-height: 1.6; 
+      color: #E2E8F0; 
+      margin-bottom: 18px; 
+    }
     .modal-body strong { color: #FFFFFF; font-weight: 700; }
-    .modal-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #68A865; color: white; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-    .modal-btn:hover { background: #5a9657; }
+    .modal-btn { 
+      width: 100%; 
+      padding: 14px; 
+      border-radius: 12px; 
+      border: none; 
+      background: var(--accent-green); 
+      color: white; 
+      font-size: 16px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      box-shadow: 0 4px 12px rgba(104, 168, 101, 0.3);
+    }
+    .modal-btn:active { transform: scale(0.98); }
   </style>
 </head>
 <body>
 
   <!-- モーダルダイアログ -->
-  <div class="modal-body">
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-icon">🔔</div>
+      <div class="modal-title">はじめる前の確認</div>
+      <div class="modal-body">
         <strong>健康のために身体を動かそう！</strong><br>
         時間になったら<strong>画面と音</strong>でお知らせして「座りっぱなし」を防ぎます！<br><br>
         <strong>【通知を受け取るための2ステップ】</strong><br>
         ①「確認してはじめる」を押したあと、画面左上の<strong>「許可」</strong>を押す<br>
         ② <strong>PC本体の設定（システム ＞ 通知）</strong>で通知をオンにする<br><br>
-        <span style="font-size: 11px; opacity: 0.85; display: block; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+        <span style="font-size: 11px; color: #CBD5E1; display: block; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
           ※通知が届かない場合は、PCの音量（ミュート解除）や「集中モード（おやすみモード）」になっていないかご確認ください。
         </span><br>
         <strong>📱 スマホでご利用の方へ：</strong><br>
         <span style="font-size: 12px;">スマホでは画面を閉じたりスリープになると通知が届かない場合があります。ブラウザを開いたままにするか、PCでのご利用をおすすめします。</span>
       </div>
+      <button class="modal-btn" onclick="closeConfirmModal()">確認してはじめる</button>
+    </div>
+  </div>
 
   <div class="container">
     <div class="brand-title">うごこ。</div>
