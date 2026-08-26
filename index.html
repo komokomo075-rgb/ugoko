@@ -41,7 +41,7 @@
     .setting-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
     .btn-group { display: flex; gap: 6px; }
     
-    .opt-btn { flex: 1; padding: 8px 4px; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-main); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .opt-btn { flex: 1; padding: 8px 2px; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-main); font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .opt-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
 
     .today-summary { background: #F8FAF8; border-radius: 16px; padding: 10px 14px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
@@ -61,7 +61,7 @@
     .bonbon-emoji { display: inline-block; font-size: 20px; animation: bonbon 0.6s infinite alternate ease-in-out; vertical-align: middle; margin: 0 4px; }
     @keyframes bonbon { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.3) translateY(-4px); } }
 
-    /* --- モーダル表示のレイアウト修正 --- */
+    /* モーダル表示のレイアウト */
     .modal-overlay { 
       position: fixed; 
       top: 0; 
@@ -174,6 +174,7 @@
           <button class="opt-btn" data-val="3" onclick="setMoveTime(3, this)">3分</button>
           <button class="opt-btn" data-val="5" onclick="setMoveTime(5, this)">5分</button>
           <button class="opt-btn" data-val="10" onclick="setMoveTime(10, this)">10分</button>
+          <button class="opt-btn" data-val="15" onclick="setMoveTime(15, this)">15分</button>
         </div>
       </div>
     </div>
