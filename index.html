@@ -27,7 +27,7 @@
       --border-color: #E0E5E1;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", AppleGothic, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 12px; }
 
     .container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 24px; padding: 24px 18px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04); border: 1px solid var(--border-color); text-align: center; }
@@ -49,9 +49,10 @@
     .setting-group { margin-bottom: 8px; }
     .setting-group:last-child { margin-bottom: 0; }
     .setting-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
-    .btn-group { display: flex; gap: 6px; }
     
-    .opt-btn { flex: 1; padding: 8px 2px; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-main); font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    /* スマホ崩れ防止のための調整 */
+    .btn-group { display: flex; gap: 4px; width: 100%; }
+    .opt-btn { flex: 1; min-width: 0; padding: 8px 0; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-main); font-size: 11px; font-weight: 600; cursor: pointer; text-align: center; }
     .opt-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
 
     .today-summary { background: #F8FAF8; border-radius: 16px; padding: 10px 14px; margin-bottom: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
